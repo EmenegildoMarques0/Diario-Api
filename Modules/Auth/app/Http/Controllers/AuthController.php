@@ -4,7 +4,6 @@ namespace Modules\Auth\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Modules\Auth\Jobs\SendWelcomeEmail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -133,6 +132,32 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Erro ao realizar logout.',
+            ], 500);
+        }
+    }
+
+    public function validateToken(Request $request): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Token inválido ou expirado.',
+                ], 401);
+            }
+
+            return response()->json([
+                'message' => 'Token válido.',
+                'user' => new UserResource($user),
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Erro ao validar token', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Erro ao validar token.',
             ], 500);
         }
     }

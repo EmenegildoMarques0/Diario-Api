@@ -18,5 +18,6 @@ Route::prefix('v1')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('profile', [ProfileController::class, 'show']);
         Route::put('profile', [ProfileController::class, 'update']);
+         Route::get('validate-token', [AuthController::class, 'validateToken']);
     });
 });
