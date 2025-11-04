@@ -1,7 +1,6 @@
 <?php
 
-namespace Modules\Auth\Database\Seeders;
-
+namespace Modules\Auth\database\seeders;
 use Illuminate\Database\Seeder;
 
 class AuthDatabaseSeeder extends Seeder

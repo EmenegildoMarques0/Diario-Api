@@ -1,0 +1,9 @@
+.git
+.gitignore
+.env
+node_modules
+vendor
+storage/logs/*
+storage/framework/*
+storage/api-docs/*
+bootstrap/cache/*
