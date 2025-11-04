@@ -77,4 +77,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: emenegildomarques0/diario-do-estilo-api:${{ github.sha }},emenegildomarques0/diario-do-estilo-api:latest
+          tags: emenegildomarques0/diario-do-estilo-api:1.0.0,emenegildomarques0/diario-do-estilo-api:latest
