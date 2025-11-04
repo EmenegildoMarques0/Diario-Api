@@ -1,27 +1,20 @@
 <?php
 
-namespace Modules\Auth\app\Providers;
-
+namespace Modules\Articles\app\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Modules\Articles\app\Models\Article;
-use Modules\Articles\app\Policies\ArticlePolicy;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-class AuthServiceProvider extends ServiceProvider
+class ArticlesServiceProvider extends ServiceProvider
 {
     use PathNamespace;
 
-    protected string $name = 'Auth';
+    protected string $name = 'Articles';
 
-    protected string $nameLower = 'auth';
-
-protected $policies = [
-        Article::class => ArticlePolicy::class,
-    ];
+    protected string $nameLower = 'articles';
 
     /**
      * Boot the application events.
@@ -34,6 +27,7 @@ protected $policies = [
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+        \Modules\Articles\app\Models\Article::observe(\Modules\Articles\app\Observers\ArticleObserverObserver::class);
     }
 
     /**
@@ -44,8 +38,6 @@ protected $policies = [
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
     }
-
-
 
     /**
      * Register commands in the format of Command::class
