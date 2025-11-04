@@ -33,6 +33,7 @@ jobs:
       - name: Copy .env.example and Generate APP_KEY
         run: |
           cp .env.example .env
+          echo "DB_DATABASE=$(pwd)/storage/database.sqlite" >> .env
           php artisan key:generate
 
       # Cria o arquivo SQLite para testes
@@ -42,6 +43,7 @@ jobs:
           touch storage/database.sqlite
           chmod 664 storage/database.sqlite
           chmod -R 775 storage bootstrap/cache
+          ls -la storage  # Debug: Verifica se o arquivo foi criado
 
       # Executa migrações para SQLite
       - name: Run Migrations
