@@ -1,0 +1,24 @@
+name: Wake API
+
+# Agendamento da action
+on:
+  schedule:
+    # A cada 5 minutos
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Permite disparar manualmente também
+
+jobs:
+  request_api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Request API
+        run: |
+          echo "Making request to Diário do Estilo API..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://diario-do-estilo-api-1-0-0.onrender.com/)
+          echo "HTTP Status Code: $RESPONSE"
+
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "Request failed!"
+            exit 1
+          fi
