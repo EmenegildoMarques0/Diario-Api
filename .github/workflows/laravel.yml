@@ -35,13 +35,12 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      # Configura permissões para SQLite
-      - name: Set Permissions for SQLite
+      # Cria o arquivo SQLite para testes
+      - name: Create SQLite Database
         run: |
+          mkdir -p storage/framework/sessions storage/framework/cache storage/framework/views storage/logs
           touch storage/database.sqlite
-          chown www-data:www-data storage/database.sqlite
           chmod 664 storage/database.sqlite
-          chown -R www-data:www-data storage bootstrap/cache
           chmod -R 775 storage bootstrap/cache
 
       # Executa migrações para SQLite
