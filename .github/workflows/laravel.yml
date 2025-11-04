@@ -1,0 +1,89 @@
+name: CI/CD Pipeline for Diario do Estilo API
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Job de Continuous Integration (CI)
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout do código
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Configura PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, pdo_mysql, pdo_pgsql, mbstring, zip, bcmath
+          coverage: none
+
+      # Instala dependências do Composer
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      # Copia .env.example para .env e gera APP_KEY
+      - name: Copy .env.example and Generate APP_KEY
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      # Configura permissões para SQLite
+      - name: Set Permissions for SQLite
+        run: |
+          touch storage/database.sqlite
+          chown www-data:www-data storage/database.sqlite
+          chmod 664 storage/database.sqlite
+          chown -R www-data:www-data storage bootstrap/cache
+          chmod -R 775 storage bootstrap/cache
+
+      # Executa migrações para SQLite
+      - name: Run Migrations
+        run: php artisan migrate --force
+
+      # Executa testes unitários
+      - name: Run Tests
+        run: php artisan test
+
+      # Verifica linting (opcional, se usar ferramentas como PHP_CodeSniffer)
+      - name: Run Linting
+        run: |
+          composer require --dev squizlabs/php_codesniffer
+          ./vendor/bin/phpcs --standard=PSR12 app
+
+  # Job de Continuous Deployment (CD)
+  cd:
+    needs: ci # Só executa se o job CI passar
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Apenas em push para main
+    steps:
+      # Checkout do código
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Configura o ambiente Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Login no Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Constrói e envia a imagem Docker
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: emenegildomarques0/diario-do-estilo-api:${{ github.sha }},emenegildomarques0/diario-do-estilo-api:latest
