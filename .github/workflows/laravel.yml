@@ -1,0 +1,78 @@
+name: CI/CD Pipeline for Diario do Estilo API
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Job de Continuous Integration (CI)
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout do código
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Configura PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, pdo_mysql, pdo_pgsql, mbstring, zip, bcmath
+          coverage: none
+
+      # Instala dependências do Composer
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      # Copia .env.example para .env e gera APP_KEY
+      - name: Copy .env.example and Generate APP_KEY
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      # Cria o arquivo SQLite para testes
+      - name: Create SQLite Database
+        run: |
+          mkdir -p storage/framework/sessions storage/framework/cache storage/framework/views storage/logs
+          touch storage/database.sqlite
+          chmod 664 storage/database.sqlite
+          chmod -R 775 storage bootstrap/cache
+
+      # Executa migrações para SQLite
+      - name: Run Migrations
+        run: php artisan migrate --force
+
+  # Job de Continuous Deployment (CD)
+  cd:
+    needs: ci # Só executa se o job CI passar
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Apenas em push para main
+    steps:
+      # Checkout do código
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Configura o ambiente Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Login no Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Constrói e envia a imagem Docker
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: emenegildomarques0/diario-do-estilo-api:${{ github.sha }},emenegildomarques0/diario-do-estilo-api:latest
