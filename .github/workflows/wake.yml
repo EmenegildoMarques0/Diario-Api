@@ -3,7 +3,7 @@ name: Wake API
 on:
   schedule:
     # A cada 7 minutos
-    - cron: '*/7 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -13,11 +13,11 @@ jobs:
       - name: Request API Ping Endpoint
         run: |
           echo "Making request to Diário do Estilo API ping endpoint..."
-          RESPONSE=$(curl -s -L -w "%{http_code}" -o response.txt https://diario-do-estilo-api-1-0-0.onrender.com/api/ping)
+          RESPONSE=$(curl -s -L -w "%{http_code}" -o response.txt https://diario-do-estilo-api-1-0-0.onrender.com)
           echo "HTTP Status Code: $RESPONSE"
           echo "Response Body:"
           cat response.txt
-          FINAL_URL=$(curl -s -L -o /dev/null -w "%{url_effective}" https://diario-do-estilo-api-1-0-0.onrender.com/api/ping)
+          FINAL_URL=$(curl -s -L -o /dev/null -w "%{url_effective}" https://diario-do-estilo-api-1-0-0.onrender.com)
           echo "Final URL after redirects: $FINAL_URL"
           if [ "$RESPONSE" -eq 200 ]; then
             echo "Request successful!"
