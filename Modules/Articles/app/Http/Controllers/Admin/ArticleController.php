@@ -149,7 +149,6 @@ class ArticleController extends Controller
             return response()->json(new ArticleResource(
                 $article->load(['author', 'publisher', 'coverImage', 'images'])
             ));
-
         } catch (Exception $e) {
             \Log::error('Erro ao atualizar artigo', [
                 'article_id' => $article->id,
@@ -164,37 +163,60 @@ class ArticleController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(Article $article): JsonResponse
-{
-    try {
-        $this->authorize('delete', $article);
+    {
+        try {
+            $this->authorize('delete', $article);
 
-        $article->delete();
+            $article->delete();
 
-        \Log::info('Artigo excluído com sucesso', [
-            'article_id' => $article->id,
-            'user_id' => auth()->id(),
-        ]);
+            \Log::info('Artigo excluído com sucesso', [
+                'article_id' => $article->id,
+                'user_id' => auth()->id(),
+            ]);
 
-        return response()->json(['message' => 'Artigo excluído com sucesso.'], 200);
-    } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-        \Log::warning('Usuário não autorizado a excluir artigo', [
-            'article_id' => $article->id,
-            'user_id' => auth()->id(),
-        ]);
+            return response()->json(['message' => 'Artigo excluído com sucesso.'], 200);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            \Log::warning('Usuário não autorizado a excluir artigo', [
+                'article_id' => $article->id,
+                'user_id' => auth()->id(),
+            ]);
 
-        return response()->json(['message' => 'Ação não autorizada.'], 403);
-    } catch (\Exception $e) {
-        \Log::error('Erro ao excluir artigo', [
-            'article_id' => $article->id,
-            'user_id' => auth()->id(),
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ]);
+            return response()->json(['message' => 'Ação não autorizada.'], 403);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao excluir artigo', [
+                'article_id' => $article->id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-        return response()->json(['message' => 'Erro ao excluir artigo: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Erro ao excluir artigo: ' . $e->getMessage()], 500);
+        }
     }
-}
 
+    public function restore($id): JsonResponse
+    {
+        try {
+            $article = Article::withTrashed()->findOrFail($id);
+
+            $this->authorize('restore', $article);
+
+            $article->restore();
+
+            \Log::info("Artigo restaurado com sucesso.", ['article_id' => $id]);
+
+            return response()->json(['message' => 'Artigo restaurado.']);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            \Log::warning("Tentativa não autorizada de restaurar artigo.", ['article_id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['error' => 'Ação não autorizada.'], 403);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error("Artigo não encontrado para restauração.", ['article_id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['error' => 'Artigo não encontrado.'], 404);
+        } catch (\Exception $e) {
+            \Log::error("Erro ao restaurar artigo.", ['article_id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['error' => 'Erro ao restaurar artigo.'], 500);
+        }
+    }
 
     private function uploadCoverImage(Article $article, $file): void
     {
