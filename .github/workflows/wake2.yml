@@ -1,0 +1,27 @@
+name: Wake API 2
+
+on:
+  schedule:
+    # A cada 7 minutos
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  request_api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request API Ping Endpoint
+        run: |
+          echo "Making request to Diário do Estilo API ping endpoint..."
+          RESPONSE=$(curl -s -L -w "%{http_code}" -o response.txt https://diario-do-estilo-api-1-0-0.onrender.com)
+          echo "HTTP Status Code: $RESPONSE"
+          echo "Response Body:"
+          cat response.txt
+          FINAL_URL=$(curl -s -L -o /dev/null -w "%{url_effective}" https://diario-do-estilo-api-1-0-0.onrender.com)
+          echo "Final URL after redirects: $FINAL_URL"
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "Request successful!"
+          else
+            echo "Request returned status $RESPONSE, but continuing to keep service alive."
+          fi
+        continue-on-error: true
