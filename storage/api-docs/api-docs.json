@@ -6,6 +6,564 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/v1/articles": {
+            "get": {
+                "tags": [
+                    "Artigos"
+                ],
+                "summary": "Lista todos os artigos",
+                "description": "Retorna uma lista paginada de artigos",
+                "operationId": "8e7a611be6568cc47f49216e1e562f81",
+                "responses": {
+                    "200": {
+                        "description": "Lista de artigos retornada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Título do Artigo"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "titulo-do-artigo"
+                                                    },
+                                                    "excerpt": {
+                                                        "type": "string",
+                                                        "example": "Resumo do artigo"
+                                                    },
+                                                    "content": {
+                                                        "type": "string",
+                                                        "example": "Conteúdo completo do artigo"
+                                                    },
+                                                    "is_published": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "is_featured": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "author": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Autor do Artigo"
+                                                            },
+                                                            "email": {
+                                                                "type": "string",
+                                                                "format": "email",
+                                                                "example": "author@example.com"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "publisher": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Editor do Artigo"
+                                                            },
+                                                            "email": {
+                                                                "type": "string",
+                                                                "format": "email",
+                                                                "example": "publisher@example.com"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "coverImage": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "path": {
+                                                                "type": "string",
+                                                                "example": "articles/1/capa.jpg"
+                                                            },
+                                                            "is_cover": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "images": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "path": {
+                                                                    "type": "string",
+                                                                    "example": "articles/1/img1.jpg"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 150
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/articles": {
+            "post": {
+                "tags": [
+                    "Artigos"
+                ],
+                "summary": "Cria um novo artigo",
+                "description": "Cria um artigo com opção de publicação e upload de imagens",
+                "operationId": "9b751fe6f8394406c794541c1060664d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "slug",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "maxLength": 150,
+                                        "example": "Título do Artigo"
+                                    },
+                                    "slug": {
+                                        "type": "string",
+                                        "example": "titulo-do-artigo"
+                                    },
+                                    "excerpt": {
+                                        "type": "string",
+                                        "maxLength": 500,
+                                        "example": "Resumo do artigo"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Conteúdo completo do artigo"
+                                    },
+                                    "is_published": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "is_featured": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "cover_image": {
+                                        "description": "Imagem de capa do artigo",
+                                        "type": "file"
+                                    },
+                                    "gallery_images[]": {
+                                        "type": "array",
+                                        "items": {
+                                            "description": "Imagens da galeria do artigo",
+                                            "type": "file"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Artigo criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Título do Artigo"
+                                        },
+                                        "slug": {
+                                            "type": "string",
+                                            "example": "titulo-do-artigo"
+                                        },
+                                        "excerpt": {
+                                            "type": "string",
+                                            "example": "Resumo do artigo"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Conteúdo completo do artigo"
+                                        },
+                                        "is_published": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "is_featured": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao criar artigo"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/articles/{slug}": {
+            "get": {
+                "tags": [
+                    "Artigos"
+                ],
+                "summary": "Exibe um artigo específico",
+                "description": "Retorna os dados de um artigo pelo slug",
+                "operationId": "6d146e32cf596432639bc033919ea386",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Artigo retornado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Título do Artigo"
+                                        },
+                                        "slug": {
+                                            "type": "string",
+                                            "example": "titulo-do-artigo"
+                                        },
+                                        "excerpt": {
+                                            "type": "string",
+                                            "example": "Resumo do artigo"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Conteúdo completo do artigo"
+                                        },
+                                        "is_published": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "is_featured": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "author": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Autor do Artigo"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Artigo não encontrado"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/articles/{id}": {
+            "put": {
+                "tags": [
+                    "Artigos"
+                ],
+                "summary": "Atualiza um artigo existente",
+                "description": "Atualiza dados de um artigo, incluindo publicação e imagens",
+                "operationId": "c69539c2e023f8806e074f8438119d62",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "maxLength": 150
+                                    },
+                                    "slug": {
+                                        "type": "string"
+                                    },
+                                    "excerpt": {
+                                        "type": "string",
+                                        "maxLength": 500
+                                    },
+                                    "content": {
+                                        "type": "string"
+                                    },
+                                    "is_published": {
+                                        "type": "boolean"
+                                    },
+                                    "is_featured": {
+                                        "type": "boolean"
+                                    },
+                                    "cover_image": {
+                                        "description": "Imagem de capa do artigo",
+                                        "type": "file"
+                                    },
+                                    "gallery_images[]": {
+                                        "type": "array",
+                                        "items": {
+                                            "description": "Imagens da galeria do artigo",
+                                            "type": "file"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Artigo atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Título do Artigo"
+                                        },
+                                        "slug": {
+                                            "type": "string",
+                                            "example": "titulo-do-artigo"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao atualizar artigo"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Artigos"
+                ],
+                "summary": "Exclui um artigo",
+                "description": "Exclui um artigo permanentemente",
+                "operationId": "44716af777bf76f1945013d26e7328fc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Artigo excluído com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Artigo excluído com sucesso."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Ação não autorizada"
+                    },
+                    "500": {
+                        "description": "Erro ao excluir artigo"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/articles/{id}/restore": {
+            "post": {
+                "tags": [
+                    "Artigos"
+                ],
+                "summary": "Restaura um artigo excluído",
+                "description": "Restaura um artigo que foi deletado soft-delete",
+                "operationId": "25a31885c620b72a3e7f3b0c547b1af4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Artigo restaurado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Artigo restaurado."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Ação não autorizada"
+                    },
+                    "404": {
+                        "description": "Artigo não encontrado"
+                    },
+                    "500": {
+                        "description": "Erro ao restaurar artigo"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/auth/register": {
             "post": {
                 "tags": [
@@ -620,6 +1178,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Artigos",
+            "description": "Artigos"
+        },
         {
             "name": "Autenticação",
             "description": "Autenticação"
