@@ -31,7 +31,6 @@ RUN php artisan config:cache 2> /var/www/storage/logs/config_cache.log || \
     { echo "Erro: Falha ao gerar cache de views. Veja /var/www/storage/logs/view_cache.log"; cat /var/www/storage/logs/view_cache.log; exit 1; } && \
     php artisan l5-swagger:generate 2> /var/www/storage/logs/swagger_generate.log || \
     { echo "Erro: Falha ao gerar documentação do Swagger. Veja /var/www/storage/logs/swagger_generate.log"; cat /var/www/storage/logs/swagger_generate.log; exit 1; }
-
 # Etapa 2: Imagem final com PHP-FPM + Nginx
 FROM php:8.2-fpm-alpine
 # Atualiza repositórios e instala dependências do sistema e extensões PHP para MySQL, PostgreSQL e SQLite
@@ -49,6 +48,9 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     touch /var/www/storage/logs/laravel.log && \
     chown www-data:www-data /var/www/storage/logs/laravel.log && \
     chmod 664 /var/www/storage/logs/laravel.log && \
+    touch /var/www/storage/logs/nightwatch_agent.log && \
+    chown www-data:www-data /var/www/storage/logs/nightwatch_agent.log && \
+    chmod 664 /var/www/storage/logs/nightwatch_agent.log && \
     mkdir -p /var/www/storage/framework/sessions /var/www/storage/framework/views /var/www/storage/framework/cache /var/www/storage/api-docs && \
     chown -R www-data:www-data /var/www/storage/framework /var/www/storage/api-docs && \
     chmod -R 775 /var/www/storage/framework /var/www/storage/api-docs && \
@@ -61,5 +63,5 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
 COPY ./deploy/nginx.conf /etc/nginx/nginx.conf
 COPY ./deploy/supervisord.conf /etc/supervisord.conf
 EXPOSE 8080
-# Executa migrations e inicia o Supervisor
-CMD ["/bin/sh", "-c", "php artisan migrate --force 2> /var/www/storage/logs/migrate.log || { echo 'Erro: Falha ao executar migrations. Veja /var/www/storage/logs/migrate.log'; cat /var/www/storage/logs/migrate.log; exit 1; } && /usr/bin/supervisord -c /etc/supervisord.conf || { echo 'Erro: Falha ao iniciar o Supervisor'; exit 1; }"]
+# Executa migrações e inicia o Supervisor
+CMD ["/bin/sh", "-c", "php artisan migrate --force 2> /var/www/storage/logs/migrate.log || { echo 'Erro: Falha ao executar migrações. Veja /var/www/storage/logs/migrate.log'; cat /var/www/storage/logs/migrate.log; exit 1; } && /usr/bin/supervisord -c /etc/supervisord.conf || { echo 'Erro: Falha ao iniciar o Supervisor'; exit 1; }"]

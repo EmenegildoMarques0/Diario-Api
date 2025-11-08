@@ -9,6 +9,7 @@
         "php": "^8.2",
         "darkaonline/l5-swagger": "^9.0",
         "laravel/framework": "^12.0",
+        "laravel/nightwatch": "^1.18",
         "laravel/sanctum": "^4.0",
         "laravel/telescope": "^5.15",
         "laravel/tinker": "^2.10.1",
