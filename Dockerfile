@@ -9,14 +9,11 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 # Copia o restante do código da aplicação
 COPY . .
 # Configura permissões e cria pastas necessárias para cache, views, sessões e banco SQLite
-RUN mkdir -R /var/www/storage/logs /var/www/storage/api-docs /var/www/storage/framework/cache /var/www/storage/framework/views /var/www/storage/framework/sessions /var/www/bootstrap/cache && \
-    chown -R $(whoami):$(whoami) /var/www/storage /var/www/bootstrap/cache && \
+RUN mkdir -p /var/www/storage/logs /var/www/storage/api-docs /var/www/storage/framework/cache /var/www/storage/framework/views /var/www/storage/framework/sessions /var/www/bootstrap/cache && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache && \
     touch /var/www/storage/logs/laravel.log && \
-    chown $(whoami):$(whoami) /var/www/storage/logs/laravel.log && \
     chmod 664 /var/www/storage/logs/laravel.log && \
     touch /var/www/storage/database.sqlite && \
-    chown $(whoami):$(whoami) /var/www/storage/database.sqlite && \
     chmod 664 /var/www/storage/database.sqlite
 # Cria um .env temporário e gera a APP_KEY
 RUN cp .env.example .env && \
@@ -59,7 +56,7 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod 664 /var/www/storage/database.sqlite && \
     chgrp -R www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod -R ug+rwx /var/www/storage /var/www/bootstrap/cache
-# Configura limites de upload do PHP-GP
+# Configura limites de upload do PHP
 RUN echo "upload_max_filesize = 10M" > /usr/local/etc/php/conf.d/uploads.ini && \
     echo "post_max_size = 12M" >> /usr/local/etc/php/conf.d/uploads.ini
 # Cria link simbólico para o disco public
