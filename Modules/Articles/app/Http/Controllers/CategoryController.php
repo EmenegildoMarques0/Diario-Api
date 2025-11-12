@@ -23,55 +23,55 @@ class CategoryController extends Controller
     }
 
 
-public function store(CategoryRequest $request): JsonResponse
-{
-    try {
-        return DB::transaction(function () use ($request) {
-            // obtém apenas os dados validados
-            $data = $request->validated();
+    public function store(CategoryRequest $request): JsonResponse
+    {
+        try {
+            return DB::transaction(function () use ($request) {
+                // obtém apenas os dados validados
+                $data = $request->validated();
 
-            // --- GERAR SLUG ÚNICO ---
-            $baseSlug = Str::slug($data['name']);
-            $slug = $baseSlug;
+                // --- GERAR SLUG ÚNICO ---
+                $baseSlug = Str::slug($data['name']);
+                $slug = $baseSlug;
 
-            // repete até achar um slug livre
-            while (DB::table('categories')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . rand(0, 5000);
-            }
+                // repete até achar um slug livre
+                while (DB::table('categories')->where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . rand(0, 5000);
+                }
 
-            $data['slug'] = $slug;
-            $data['created_by'] = auth()->id();
+                $data['slug'] = $slug;
+                $data['created_by'] = auth()->id();
 
-            // cria a categoria
-            $category = Category::create($data);
+                // cria a categoria
+                $category = Category::create($data);
 
-            // valida se o registro foi criado corretamente
-            if (!$category->exists || !$category->id) {
-                \Log::error('Falha ao criar categoria', [
+                // valida se o registro foi criado corretamente
+                if (!$category->exists || !$category->id) {
+                    \Log::error('Falha ao criar categoria', [
+                        'user_id' => auth()->id(),
+                        'data' => $data,
+                    ]);
+                    throw new \Exception('Erro ao criar categoria: ID não gerado.');
+                }
+
+                \Log::info('Categoria criada com sucesso', [
+                    'category_id' => $category->id,
                     'user_id' => auth()->id(),
-                    'data' => $data,
                 ]);
-                throw new \Exception('Erro ao criar categoria: ID não gerado.');
-            }
 
-            \Log::info('Categoria criada com sucesso', [
-                'category_id' => $category->id,
+                // retorna recurso carregado
+                return response()->json(new CategoryResource($category), 201);
+            });
+        } catch (\Exception $e) {
+            \Log::error('Erro ao criar categoria', [
                 'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            // retorna recurso carregado
-            return response()->json(new CategoryResource($category), 201);
-        });
-    } catch (\Exception $e) {
-        \Log::error('Erro ao criar categoria', [
-            'user_id' => auth()->id(),
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ]);
-
-        return response()->json(['message' => 'Erro ao criar categoria: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Erro ao criar categoria: ' . $e->getMessage()], 500);
+        }
     }
-}
 
     public function show(Category $category): JsonResponse
     {

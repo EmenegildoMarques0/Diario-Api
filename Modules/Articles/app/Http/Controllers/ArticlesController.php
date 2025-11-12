@@ -4,6 +4,7 @@ namespace Modules\Articles\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Modules\Articles\app\Models\Article;
 use Modules\Articles\app\Transformers\ArticleCollection;
@@ -15,21 +16,48 @@ class ArticlesController extends Controller
     /**
      * Retorna a lista de artigos publicados.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
-            $articles = Article::published()
+            // Inicia a query para artigos publicados
+            $query = Article::published()
                 ->with(['author', 'coverImage', 'images'])
-                ->latest('published_at')
-                ->paginate(12);
+                ->latest('published_at');
 
-            return response()->json(new ArticleCollection($articles));
-        } catch (Throwable $e) {
+            // Aplica filtro opcional por categorias
+            if ($request->has('category_ids')) {
+                $categoryIds = is_array($request->input('category_ids'))
+                    ? $request->input('category_ids')
+                    : explode(',', $request->input('category_ids'));
+
+                // Valida que os category_ids são inteiros válidos
+                $categoryIds = array_filter($categoryIds, fn($id) => is_numeric($id) && $id > 0);
+
+                if (!empty($categoryIds)) {
+                    $query->whereHas('categories', function ($query) use ($categoryIds) {
+                        $query->whereIn('categories.id', $categoryIds);
+                    });
+                }
+            }
+
+            // Executa a query com paginação
+            $articles = $query->paginate(12);
+
+            // Loga a busca bem-sucedida
+            Log::info('Artigos carregados com sucesso', [
+                'category_ids' => $request->input('category_ids', []),
+                'total' => $articles->total(),
+                'user_id' => auth()->id() ?? 'guest',
+            ]);
+
+            return response()->json(new ArticleCollection($articles), 200);
+        } catch (\Throwable $e) {
             Log::error('Erro ao carregar artigos', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
+                'category_ids' => $request->input('category_ids', []),
+                'user_id' => auth()->id() ?? 'guest',
             ]);
 
             return response()->json([
@@ -38,7 +66,6 @@ class ArticlesController extends Controller
             ], 500);
         }
     }
-
     /**
      * Exibe um artigo específico.
      */
