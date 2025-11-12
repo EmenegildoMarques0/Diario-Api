@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Articles\app\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use Modules\Articles\app\Http\Controllers\ArticlesController;
+use Modules\Articles\app\Http\Controllers\CategoryController;
 
 Route::prefix('v1')->group(function () {
 
@@ -13,10 +14,21 @@ Route::prefix('v1')->group(function () {
     });
 
     // Rotas administrativas protegidas por autenticação
-    Route::middleware('auth:sanctum')->prefix('admin/articles')->group(function () {
-        Route::apiResource('/', AdminArticleController::class)->parameters([
-            '' => 'article'
-        ]);
-        Route::post('/{id}/restore', [AdminArticleController::class, 'restore']);
+    Route::middleware('auth:sanctum')->group(function () {
+
+        // Artigos (privados)
+        Route::prefix('admin/articles')->group(function () {
+            Route::apiResource('/', AdminArticleController::class)->parameters([
+                '' => 'article'
+            ]);
+            Route::post('/{id}/restore', [AdminArticleController::class, 'restore']);
+        });
+
+        // Categorias (privadas)
+        Route::prefix('admin/categories')->group(function () {
+            Route::apiResource('/', CategoryController::class)->parameters([
+                '' => 'category'
+            ]);
+        });
     });
 });

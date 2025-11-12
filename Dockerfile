@@ -9,7 +9,7 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 # Copia o restante do código da aplicação
 COPY . .
 # Configura permissões e cria pastas necessárias para cache, views, sessões e banco SQLite
-RUN mkdir -p /var/www/storage/logs /var/www/storage/api-docs /var/www/storage/framework/cache /var/www/storage/framework/views /var/www/storage/framework/sessions /var/www/bootstrap/cache && \
+RUN mkdir -R /var/www/storage/logs /var/www/storage/api-docs /var/www/storage/framework/cache /var/www/storage/framework/views /var/www/storage/framework/sessions /var/www/bootstrap/cache && \
     chown -R $(whoami):$(whoami) /var/www/storage /var/www/bootstrap/cache && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache && \
     touch /var/www/storage/logs/laravel.log && \
@@ -42,7 +42,7 @@ RUN apk update && \
 WORKDIR /var/www
 # Copia os arquivos da etapa de build
 COPY --from=build /var/www /var/www
-# Configura permissões para o usuário www-data, garantindo escrita no SQLite
+# Configura permissões para o usuário www-data, garantindo escrita no SQLite e uploads
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache && \
     touch /var/www/storage/logs/laravel.log && \
@@ -51,14 +51,20 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     touch /var/www/storage/logs/nightwatch_agent.log && \
     chown www-data:www-data /var/www/storage/logs/nightwatch_agent.log && \
     chmod 664 /var/www/storage/logs/nightwatch_agent.log && \
-    mkdir -p /var/www/storage/framework/sessions /var/www/storage/framework/views /var/www/storage/framework/cache /var/www/storage/api-docs && \
-    chown -R www-data:www-data /var/www/storage/framework /var/www/storage/api-docs && \
-    chmod -R 775 /var/www/storage/framework /var/www/storage/api-docs && \
+    mkdir -p /var/www/storage/framework/sessions /var/www/storage/framework/views /var/www/storage/framework/cache /var/www/storage/api-docs /var/www/storage/app/public && \
+    chown -R www-data:www-data /var/www/storage/framework /var/www/storage/api-docs /var/www/storage/app && \
+    chmod -R 775 /var/www/storage/framework /var/www/storage/api-docs /var/www/storage/app && \
     touch /var/www/storage/database.sqlite && \
     chown www-data:www-data /var/www/storage/database.sqlite && \
     chmod 664 /var/www/storage/database.sqlite && \
     chgrp -R www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod -R ug+rwx /var/www/storage /var/www/bootstrap/cache
+# Configura limites de upload do PHP-GP
+RUN echo "upload_max_filesize = 10M" > /usr/local/etc/php/conf.d/uploads.ini && \
+    echo "post_max_size = 12M" >> /usr/local/etc/php/conf.d/uploads.ini
+# Cria link simbólico para o disco public
+RUN php artisan storage:link 2> /var/www/storage/logs/storage_link.log || \
+    { echo "Erro: Falha ao criar link simbólico. Veja /var/www/storage/logs/storage_link.log"; cat /var/www/storage/logs/storage_link.log; exit 1; }
 # Copia arquivos de configuração
 COPY ./deploy/nginx.conf /etc/nginx/nginx.conf
 COPY ./deploy/supervisord.conf /etc/supervisord.conf
