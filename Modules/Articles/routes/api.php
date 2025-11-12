@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use Modules\Articles\app\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use Modules\Articles\app\Http\Controllers\ArticlesController;
@@ -12,20 +13,26 @@ Route::prefix('v1')->group(function () {
     });
 
     // Rotas administrativas protegidas por autenticação
-    Route::middleware('auth:sanctum')->group(function () {
-        // Artigos (privados)
+    Route::middleware(['auth:sanctum'])->group(function () {
         Route::prefix('admin')->group(function () {
-            Route::apiResource('articles', AdminArticleController::class)->parameters([
-                'articles' => 'article'
-            ])->names('admin.articles');
-            Route::post('articles/{id}/restore', [AdminArticleController::class, 'restore'])->name('admin.articles.restore');
-        });
+            // Artigos
+            Route::apiResource('articles', AdminArticleController::class)
+                ->parameters(['articles' => 'article:slug'])
+                ->names('admin.articles');
 
-        // Categorias (privadas)
-        Route::prefix('admin')->group(function () {
-            Route::apiResource('categories', CategoryController::class)->parameters([
-                'categories' => 'category'
-            ])->names('admin.categories');
+            Route::post('articles/{article:slug}/restore', [AdminArticleController::class, 'restore'])
+                ->name('admin.articles.restore');
+
+            Route::post('articles/{article:slug}/categories', [AdminArticleController::class, 'attachCategory'])
+                ->name('admin.articles.attach-category');
+
+            Route::delete('articles/{article:slug}/categories', [AdminArticleController::class, 'detachCategory'])
+                ->name('admin.articles.detach-category');
+
+            // Categorias
+            Route::apiResource('categories', CategoryController::class)
+                ->parameters(['categories' => 'category:slug'])
+                ->names('admin.categories');
         });
     });
 });

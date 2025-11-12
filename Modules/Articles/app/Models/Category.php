@@ -20,9 +20,11 @@ class Category extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function articles(): BelongsToMany
+   public function articles(): BelongsToMany
     {
-        return $this->belongsToMany(Article::class, 'article_category');
+        return $this->belongsToMany(Article::class, 'article_category')
+                    ->using(ArticleCategory::class) // opcional, se usar o modelo pivot
+                    ->withTimestamps();
     }
 
      public function getRouteKeyName(): string

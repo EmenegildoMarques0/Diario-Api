@@ -7,12 +7,16 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\Articles\app\Http\Requests\StoreArticleRequest;
 use Modules\Articles\app\Http\Requests\UpdateArticleRequest;
-use Modules\Articles\app\Models\{Article, ArticleImage};
+use Modules\Articles\app\Models\{Article, ArticleImage, Category};
 use Modules\Articles\app\Transformers\ArticleCollection;
 use Modules\Articles\app\Transformers\ArticleResource;
+use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
+use Modules\Articles\app\Http\Requests\AttachCategoryRequest;
 
 class ArticleController extends Controller
 {
@@ -300,6 +304,148 @@ class ArticleController extends Controller
             ]);
 
             throw new \Exception('Falha ao salvar imagem da galeria: ' . $e->getMessage());
+        }
+    }
+
+  public function attachCategory(AttachCategoryRequest $request, Article $article): JsonResponse
+    {
+        try {
+            // Verifica permissão para atualizar o artigo
+            $this->authorize('update', $article);
+
+
+
+            // Busca a categoria
+            $category = Category::findOrFail($request->validated('category_id'));
+
+            // Inicia uma transação
+            return DB::transaction(function () use ($article, $category) {
+                // Verifica se a categoria já está associada
+                if ($article->categories()->where('category_id', $category->id)->exists()) {
+                    Log::info('Tentativa de associar categoria já existente', [
+                        'article_slug' => $article->slug,
+                        'category_id' => $category->id,
+                        'user_id' => auth()->id(),
+                    ]);
+
+                    return response()->json([
+                        'message' => 'A categoria já está associada ao artigo.',
+                        'data' => [
+                            'article_slug' => $article->slug,
+                            'category_slug' => $category->slug,
+                        ]
+                    ], 200);
+                }
+
+                // Associa a categoria
+                $article->categories()->attach($category->id);
+
+                Log::info('Categoria associada ao artigo com sucesso', [
+                    'article_slug' => $article->slug,
+                    'category_id' => $category->id,
+                    'user_id' => auth()->id(),
+                ]);
+
+                return response()->json([
+                    'message' => 'Categoria associada ao artigo com sucesso.',
+                    'data' => [
+                        'article_slug' => $article->slug,
+                        'category_slug' => $category->slug,
+                    ]
+                ], 200);
+            });
+        } catch (QueryException $e) {
+            Log::error('Erro ao associar categoria ao artigo', [
+                'article_slug' => $article->slug,
+                'category_id' => $request->input('category_id'),
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Erro ao associar a categoria. Tente novamente.',
+            ], 500);
+        } catch (\Exception $e) {
+            Log::error('Erro inesperado ao associar categoria', [
+                'article_slug' => $article->slug,
+                'category_id' => $request->input('category_id'),
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Ocorreu um erro inesperado. Tente novamente.',
+            ], 500);
+        }
+    }
+
+public function detachCategory(AttachCategoryRequest $request, Article $article): JsonResponse
+    {
+        try {
+            // Verifica permissão para atualizar o artigo
+            $this->authorize('update', $article);
+
+            // Obtém a categoria validada
+            $category = Category::findOrFail($request->validated('category_id'));
+
+            // Inicia uma transação
+            return DB::transaction(function () use ($article, $category) {
+                // Verifica se a categoria está associada
+                if (!$article->categories()->where('category_id', $category->id)->exists()) {
+                    Log::info('Tentativa de desassociar categoria não associada', [
+                        'article_slug' => $article->slug,
+                        'category_id' => $category->id,
+                        'user_id' => auth()->id(),
+                    ]);
+
+                    return response()->json([
+                        'message' => 'A categoria não está associada ao artigo.',
+                        'data' => [
+                            'article_slug' => $article->slug,
+                            'category_slug' => $category->slug,
+                        ]
+                    ], 200);
+                }
+
+                // Desassocia a categoria
+                $article->categories()->detach($category->id);
+
+                Log::info('Categoria desassociada do artigo com sucesso', [
+                    'article_slug' => $article->slug,
+                    'category_id' => $category->id,
+                    'user_id' => auth()->id(),
+                ]);
+
+                return response()->json([
+                    'message' => 'Categoria desassociada do artigo com sucesso.',
+                    'data' => [
+                        'article_slug' => $article->slug,
+                        'category_slug' => $category->slug,
+                    ]
+                ], 200);
+            });
+        } catch (QueryException $e) {
+            Log::error('Erro ao desassociar categoria do artigo', [
+                'article_slug' => $article->slug,
+                'category_id' => $request->validated('category_id', null),
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Erro ao desassociar a categoria. Tente novamente.',
+            ], 500);
+        } catch (\Exception $e) {
+            Log::error('Erro inesperado ao desassociar categoria', [
+                'article_slug' => $article->slug,
+                'category_id' => $request->validated('category_id', null),
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Ocorreu um erro inesperado. Tente novamente.',
+            ], 500);
         }
     }
 }
