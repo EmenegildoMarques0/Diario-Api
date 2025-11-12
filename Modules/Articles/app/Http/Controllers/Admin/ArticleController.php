@@ -222,105 +222,91 @@ class ArticleController extends Controller
         }
     }
 
-private function uploadCoverImage(Article $article, $file): void
-{
-    try {
-        $disk = config('filesystems.default'); // usa o valor de FILESYSTEM_DISK do .env
-        \Log::info('Iniciando upload da imagem de capa', [
-            'article_id' => $article->id,
-            'file' => $file->getClientOriginalName(),
-            'disk' => $disk,
-        ]);
+    private function uploadCoverImage(Article $article, $file): void
+    {
+        try {
+            \Log::info('Iniciando upload da imagem de capa', [
+                'article_id' => $article->id,
+                'file' => $file->getClientOriginalName(),
+            ]);
 
-        // Remove imagem antiga, se existir
-        $oldCover = $article->coverImage;
-        if ($oldCover) {
-            if (Storage::disk($disk)->exists($oldCover->path)) {
-                Storage::disk($disk)->delete($oldCover->path);
+            $oldCover = $article->coverImage;
+            if ($oldCover) {
+                Storage::disk('public')->delete($oldCover->path);
+                $oldCover->delete();
             }
-            $oldCover->delete();
+
+            $path = $file->store("articles/{$article->id}", 'public');
+
+            ArticleImage::create([
+                'article_id' => $article->id,
+                'path' => $path,
+                'is_cover' => true,
+                'sort_order' => 0,
+            ]);
+
+            \Log::info('Imagem de capa salva com sucesso', [
+                'article_id' => $article->id,
+                'path' => $path,
+            ]);
+        } catch (\Exception $e) {
+            // Remover o arquivo salvo, se existir
+            if (isset($path) && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+
+            \Log::error('Erro ao fazer upload da imagem de capa', [
+                'article_id' => $article->id,
+                'file' => $file->getClientOriginalName(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            throw new \Exception('Falha ao salvar imagem de capa: ' . $e->getMessage());
         }
-
-        // Faz o upload no disco atual (pode ser local ou S3)
-        $path = $file->store("articles/{$article->id}", $disk);
-
-        // Salva no banco
-        ArticleImage::create([
-            'article_id' => $article->id,
-            'path' => $path,
-            'is_cover' => true,
-            'sort_order' => 0,
-        ]);
-
-        \Log::info('Imagem de capa salva com sucesso', [
-            'article_id' => $article->id,
-            'path' => $path,
-            'disk' => $disk,
-        ]);
-
-    } catch (\Exception $e) {
-        // Em caso de erro, remove o arquivo salvo
-        if (isset($path) && Storage::disk($disk)->exists($path)) {
-            Storage::disk($disk)->delete($path);
-        }
-
-        \Log::error('Erro ao fazer upload da imagem de capa', [
-            'article_id' => $article->id,
-            'file' => $file->getClientOriginalName(),
-            'error' => $e->getMessage(),
-        ]);
-
-        throw new \Exception('Falha ao salvar imagem de capa: ' . $e->getMessage());
     }
-}
-private function uploadGalleryImage(Article $article, $file, $index): void
-{
-    $disk = config('filesystems.default'); // pega o disco do .env (public ou s3)
 
-    try {
-        \Log::info('Iniciando upload da imagem da galeria', [
-            'article_id' => $article->id,
-            'file' => $file->getClientOriginalName(),
-            'index' => $index,
-            'disk' => $disk,
-        ]);
+    private function uploadGalleryImage(Article $article, $file, $index): void
+    {
+        try {
+            \Log::info('Iniciando upload da imagem da galeria', [
+                'article_id' => $article->id,
+                'file' => $file->getClientOriginalName(),
+                'index' => $index,
+            ]);
 
-        // Faz o upload no disco configurado
-        $path = $file->store("articles/{$article->id}", $disk);
+            $path = $file->store("articles/{$article->id}", 'public');
 
-        // Salva no banco
-        ArticleImage::create([
-            'article_id' => $article->id,
-            'path' => $path,
-            'is_cover' => false,
-            'sort_order' => $index + 1,
-        ]);
+            ArticleImage::create([
+                'article_id' => $article->id,
+                'path' => $path,
+                'is_cover' => false,
+                'sort_order' => $index + 1,
+            ]);
 
-        \Log::info('Imagem da galeria salva com sucesso', [
-            'article_id' => $article->id,
-            'path' => $path,
-            'index' => $index,
-            'disk' => $disk,
-        ]);
+            \Log::info('Imagem da galeria salva com sucesso', [
+                'article_id' => $article->id,
+                'path' => $path,
+                'index' => $index,
+            ]);
+        } catch (\Exception $e) {
+            // Remover o arquivo salvo, se existir
+            if (isset($path) && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
 
-    } catch (\Exception $e) {
-        // Remove arquivo salvo, caso exista
-        if (isset($path) && Storage::disk($disk)->exists($path)) {
-            Storage::disk($disk)->delete($path);
+            \Log::error('Erro ao fazer upload da imagem da galeria', [
+                'article_id' => $article->id,
+                'file' => $file->getClientOriginalName(),
+                'index' => $index,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            throw new \Exception('Falha ao salvar imagem da galeria: ' . $e->getMessage());
         }
-
-        \Log::error('Erro ao fazer upload da imagem da galeria', [
-            'article_id' => $article->id,
-            'file' => $file->getClientOriginalName(),
-            'index' => $index,
-            'disk' => $disk,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ]);
-
-        throw new \Exception('Falha ao salvar imagem da galeria: ' . $e->getMessage());
     }
-}
+
   public function attachCategory(AttachCategoryRequest $request, Article $article): JsonResponse
     {
         try {
