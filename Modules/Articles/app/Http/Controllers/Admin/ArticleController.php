@@ -225,19 +225,26 @@ class ArticleController extends Controller
     private function uploadCoverImage(Article $article, $file): void
     {
         try {
+            $disk = config('filesystems.default'); // usa o valor de FILESYSTEM_DISK do .env
             \Log::info('Iniciando upload da imagem de capa', [
                 'article_id' => $article->id,
                 'file' => $file->getClientOriginalName(),
+                'disk' => $disk,
             ]);
 
+            // Remove imagem antiga, se existir
             $oldCover = $article->coverImage;
             if ($oldCover) {
-                Storage::disk('public')->delete($oldCover->path);
+                if (Storage::disk($disk)->exists($oldCover->path)) {
+                    Storage::disk($disk)->delete($oldCover->path);
+                }
                 $oldCover->delete();
             }
 
-            $path = $file->store("articles/{$article->id}", 'public');
+            // Faz o upload no disco atual (pode ser local ou S3)
+            $path = $file->store("articles/{$article->id}", $disk);
 
+            // Salva no banco
             ArticleImage::create([
                 'article_id' => $article->id,
                 'path' => $path,
@@ -248,18 +255,18 @@ class ArticleController extends Controller
             \Log::info('Imagem de capa salva com sucesso', [
                 'article_id' => $article->id,
                 'path' => $path,
+                'disk' => $disk,
             ]);
         } catch (\Exception $e) {
-            // Remover o arquivo salvo, se existir
-            if (isset($path) && Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
+            // Em caso de erro, remove o arquivo salvo
+            if (isset($path) && Storage::disk($disk)->exists($path)) {
+                Storage::disk($disk)->delete($path);
             }
 
             \Log::error('Erro ao fazer upload da imagem de capa', [
                 'article_id' => $article->id,
                 'file' => $file->getClientOriginalName(),
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
 
             throw new \Exception('Falha ao salvar imagem de capa: ' . $e->getMessage());
@@ -268,15 +275,20 @@ class ArticleController extends Controller
 
     private function uploadGalleryImage(Article $article, $file, $index): void
     {
+        $disk = config('filesystems.default'); // pega o disco do .env (public ou s3)
+
         try {
             \Log::info('Iniciando upload da imagem da galeria', [
                 'article_id' => $article->id,
                 'file' => $file->getClientOriginalName(),
                 'index' => $index,
+                'disk' => $disk,
             ]);
 
-            $path = $file->store("articles/{$article->id}", 'public');
+            // Faz o upload no disco configurado
+            $path = $file->store("articles/{$article->id}", $disk);
 
+            // Salva no banco
             ArticleImage::create([
                 'article_id' => $article->id,
                 'path' => $path,
@@ -288,17 +300,19 @@ class ArticleController extends Controller
                 'article_id' => $article->id,
                 'path' => $path,
                 'index' => $index,
+                'disk' => $disk,
             ]);
         } catch (\Exception $e) {
-            // Remover o arquivo salvo, se existir
-            if (isset($path) && Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
+            // Remove arquivo salvo, caso exista
+            if (isset($path) && Storage::disk($disk)->exists($path)) {
+                Storage::disk($disk)->delete($path);
             }
 
             \Log::error('Erro ao fazer upload da imagem da galeria', [
                 'article_id' => $article->id,
                 'file' => $file->getClientOriginalName(),
                 'index' => $index,
+                'disk' => $disk,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -307,7 +321,7 @@ class ArticleController extends Controller
         }
     }
 
-  public function attachCategory(AttachCategoryRequest $request, Article $article): JsonResponse
+    public function attachCategory(AttachCategoryRequest $request, Article $article): JsonResponse
     {
         try {
             // Verifica permissão para atualizar o artigo
@@ -379,7 +393,7 @@ class ArticleController extends Controller
         }
     }
 
-public function detachCategory(AttachCategoryRequest $request, Article $article): JsonResponse
+    public function detachCategory(AttachCategoryRequest $request, Article $article): JsonResponse
     {
         try {
             // Verifica permissão para atualizar o artigo
