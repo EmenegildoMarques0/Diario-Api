@@ -84,6 +84,11 @@ class ArticleController extends Controller
                     }
                 }
 
+                // Dispara evento se o artigo for publicado
+                if ($article->published_at) {
+                    event(new ArticlePublished($article));
+                }
+
                 // Commit implícito ao sair do bloco de transação
                 return response()->json(new ArticleResource(
                     $article->load(['author', 'publisher', 'coverImage', 'images'])

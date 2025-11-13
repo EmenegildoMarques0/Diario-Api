@@ -2,27 +2,28 @@
 
 namespace Modules\Articles\app\Providers;
 
-
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Modules\Articles\app\Events\ArticlePublished;
+use Modules\Articles\app\Events\UserRegistered;
+use Modules\Articles\app\Listeners\SendArticlePublishedNotification;
+use Modules\Articles\app\Listeners\SendWelcomeNotification;
 
 class EventServiceProvider extends ServiceProvider
 {
-    /**
-     * The event handler mappings for the application.
-     *
-     * @var array<string, array<int, string>>
-     */
-    protected $listen = [];
+    protected $listen = [
+        UserRegistered::class => [
+            SendWelcomeNotification::class,
+        ],
+        ArticlePublished::class => [
+            SendArticlePublishedNotification::class,
+        ],
+    ];
 
-    /**
-     * Indicates if events should be discovered.
-     *
-     * @var bool
-     */
-    protected static $shouldDiscoverEvents = true;
+    // IMPORTANTE: Desativar descoberta automática
+    protected static $shouldDiscoverEvents = false;
 
-    /**
-     * Configure the proper event listeners for email verification.
-     */
-    protected function configureEmailVerification(): void {}
+    public function boot(): void
+    {
+        parent::boot();
+    }
 }

@@ -17,6 +17,11 @@ return new class extends Migration {
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
+
+        Schema::table('notifications', function (Blueprint $table) {
+            $table->index(['notifiable_id', 'notifiable_type']);
+            $table->index('read_at');
+        });
     }
 
     public function down(): void

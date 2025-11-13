@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Http\Request;
+use Modules\Articles\app\Events\UserRegistered;
+use Modules\Articles\app\Http\Controllers\Notifications\WelcomeNotificationController;
 use Modules\Auth\app\Http\Requests\LoginRequest;
 use Modules\Auth\app\Http\Requests\RegisterRequest;
 use Modules\Auth\app\Transformers\UserResource;
@@ -30,6 +32,9 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'role' => $request->role ?? 'reader',
             ]);
+
+            // Dispara evento de registro
+//$user->notify(new WelcomeNotificationController($user));
 
 
             $token = $user->createToken('auth_token')->plainTextToken;
