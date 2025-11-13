@@ -11,12 +11,402 @@
                 "tags": [
                     "Artigos"
                 ],
-                "summary": "Lista todos os artigos",
-                "description": "Retorna uma lista paginada de artigos",
+                "summary": "Lista artigos publicados",
+                "description": "Retorna uma lista paginada de artigos publicados, com opção de filtro por categorias. Não requer autenticação.",
                 "operationId": "8e7a611be6568cc47f49216e1e562f81",
+                "parameters": [
+                    {
+                        "name": "category_ids",
+                        "in": "query",
+                        "description": "IDs das categorias para filtrar (array ou string separada por vírgulas)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "1,2"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Lista de artigos retornada",
+                        "description": "Lista de artigos retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Título do Artigo"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "titulo-do-artigo"
+                                                    },
+                                                    "excerpt": {
+                                                        "type": "string",
+                                                        "example": "Resumo do artigo"
+                                                    },
+                                                    "content": {
+                                                        "type": "string",
+                                                        "example": "Conteúdo completo do artigo"
+                                                    },
+                                                    "is_published": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "is_featured": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "author": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Autor do Artigo"
+                                                            },
+                                                            "email": {
+                                                                "type": "string",
+                                                                "format": "email",
+                                                                "example": "author@example.com"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "coverImage": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "path": {
+                                                                "type": "string",
+                                                                "example": "articles/1/capa.jpg"
+                                                            },
+                                                            "is_cover": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            },
+                                                            "sort_order": {
+                                                                "type": "integer",
+                                                                "example": 0
+                                                            }
+                                                        },
+                                                        "type": "object",
+                                                        "nullable": true
+                                                    },
+                                                    "images": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                },
+                                                                "path": {
+                                                                    "type": "string",
+                                                                    "example": "articles/1/img1.jpg"
+                                                                },
+                                                                "is_cover": {
+                                                                    "type": "boolean",
+                                                                    "example": false
+                                                                },
+                                                                "sort_order": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "published_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 12
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 120
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao carregar artigos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Erro ao carregar os artigos."
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ocorreu um problema ao obter os artigos. Verifique os logs para mais detalhes."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/articles/{slug}": {
+            "get": {
+                "tags": [
+                    "Artigos"
+                ],
+                "summary": "Exibe um artigo publicado",
+                "description": "Retorna os detalhes de um artigo publicado pelo slug, incluindo autor, editor e imagens. Incrementa a contagem de visualizações. Não requer autenticação.",
+                "operationId": "6d146e32cf596432639bc033919ea386",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug do artigo",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "titulo-do-artigo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Artigo retornado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Título do Artigo"
+                                        },
+                                        "slug": {
+                                            "type": "string",
+                                            "example": "titulo-do-artigo"
+                                        },
+                                        "excerpt": {
+                                            "type": "string",
+                                            "example": "Resumo do artigo"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Conteúdo completo do artigo"
+                                        },
+                                        "is_published": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "is_featured": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "author": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Autor do Artigo"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "author@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "publisher": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Editor do Artigo"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "publisher@example.com"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "coverImage": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "path": {
+                                                    "type": "string",
+                                                    "example": "articles/1/capa.jpg"
+                                                },
+                                                "is_cover": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "sort_order": {
+                                                    "type": "integer",
+                                                    "example": 0
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "images": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "path": {
+                                                        "type": "string",
+                                                        "example": "articles/1/img1.jpg"
+                                                    },
+                                                    "is_cover": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "sort_order": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "published_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Artigo não encontrado ou não publicado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao exibir artigo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Erro ao exibir o artigo."
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ocorreu um problema ao exibir o artigo. Verifique os logs para mais detalhes."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/articles": {
+            "get": {
+                "tags": [
+                    "Artigos Admin"
+                ],
+                "summary": "Lista todos os artigos (admin)",
+                "description": "Retorna uma lista paginada de artigos, incluindo os deletados (soft delete), com autor, editor e imagens. Requer autenticação.",
+                "operationId": "04f26441e8724a398d11b546fe566a73",
+                "responses": {
+                    "200": {
+                        "description": "Lista de artigos retornada com sucesso",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -87,7 +477,8 @@
                                                                 "example": "publisher@example.com"
                                                             }
                                                         },
-                                                        "type": "object"
+                                                        "type": "object",
+                                                        "nullable": true
                                                     },
                                                     "coverImage": {
                                                         "properties": {
@@ -102,9 +493,14 @@
                                                             "is_cover": {
                                                                 "type": "boolean",
                                                                 "example": true
+                                                            },
+                                                            "sort_order": {
+                                                                "type": "integer",
+                                                                "example": 0
                                                             }
                                                         },
-                                                        "type": "object"
+                                                        "type": "object",
+                                                        "nullable": true
                                                     },
                                                     "images": {
                                                         "type": "array",
@@ -112,15 +508,28 @@
                                                             "properties": {
                                                                 "id": {
                                                                     "type": "integer",
-                                                                    "example": 1
+                                                                    "example": 2
                                                                 },
                                                                 "path": {
                                                                     "type": "string",
                                                                     "example": "articles/1/img1.jpg"
+                                                                },
+                                                                "is_cover": {
+                                                                    "type": "boolean",
+                                                                    "example": false
+                                                                },
+                                                                "sort_order": {
+                                                                    "type": "integer",
+                                                                    "example": 1
                                                                 }
                                                             },
                                                             "type": "object"
                                                         }
+                                                    },
+                                                    "published_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
                                                     },
                                                     "created_at": {
                                                         "type": "string",
@@ -131,6 +540,12 @@
                                                         "type": "string",
                                                         "format": "date-time",
                                                         "example": "2025-11-05T12:00:00Z"
+                                                    },
+                                                    "deleted_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": null,
+                                                        "nullable": true
                                                     }
                                                 },
                                                 "type": "object"
@@ -148,7 +563,7 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "example": 15
+                                                    "example": 20
                                                 },
                                                 "total": {
                                                     "type": "integer",
@@ -162,17 +577,52 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro interno do servidor."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
-            }
-        },
-        "/api/v1/admin/articles": {
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
-                    "Artigos"
+                    "Artigos Admin"
                 ],
-                "summary": "Cria um novo artigo",
-                "description": "Cria um artigo com opção de publicação e upload de imagens",
+                "summary": "Cria um novo artigo (admin)",
+                "description": "Cria um artigo com opção de publicação imediata e upload de imagens de capa e galeria. Dispara evento ArticlePublished se publicado. Requer autenticação.",
                 "operationId": "9b751fe6f8394406c794541c1060664d",
                 "requestBody": {
                     "required": true,
@@ -192,6 +642,7 @@
                                     },
                                     "slug": {
                                         "type": "string",
+                                        "maxLength": 255,
                                         "example": "titulo-do-artigo"
                                     },
                                     "excerpt": {
@@ -204,21 +655,23 @@
                                         "example": "Conteúdo completo do artigo"
                                     },
                                     "is_published": {
+                                        "description": "Define se o artigo será publicado imediatamente",
                                         "type": "boolean",
                                         "example": true
                                     },
                                     "is_featured": {
+                                        "description": "Define se o artigo é destacado",
                                         "type": "boolean",
                                         "example": false
                                     },
                                     "cover_image": {
-                                        "description": "Imagem de capa do artigo",
+                                        "description": "Imagem de capa do artigo (JPEG, PNG, max: 5MB)",
                                         "type": "file"
                                     },
                                     "gallery_images[]": {
+                                        "description": "Imagens da galeria do artigo (JPEG, PNG, max: 5MB cada)",
                                         "type": "array",
                                         "items": {
-                                            "description": "Imagens da galeria do artigo",
                                             "type": "file"
                                         }
                                     }
@@ -263,7 +716,100 @@
                                             "type": "boolean",
                                             "example": false
                                         },
+                                        "author": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Autor do Artigo"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "author@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "publisher": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Editor do Artigo"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "publisher@example.com"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "coverImage": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "path": {
+                                                    "type": "string",
+                                                    "example": "articles/1/capa.jpg"
+                                                },
+                                                "is_cover": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "sort_order": {
+                                                    "type": "integer",
+                                                    "example": 0
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "images": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "path": {
+                                                        "type": "string",
+                                                        "example": "articles/1/img1.jpg"
+                                                    },
+                                                    "is_cover": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "sort_order": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "published_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
                                         "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
+                                        "updated_at": {
                                             "type": "string",
                                             "format": "date-time",
                                             "example": "2025-11-05T12:00:00Z"
@@ -274,8 +820,65 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The title field is required."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "title": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The title field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "500": {
-                        "description": "Erro ao criar artigo"
+                        "description": "Erro ao criar artigo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao criar artigo: Falha ao salvar imagem."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -285,21 +888,23 @@
                 ]
             }
         },
-        "/api/v1/articles/{slug}": {
+        "/api/v1/admin/articles/{slug}": {
             "get": {
                 "tags": [
-                    "Artigos"
+                    "Artigos Admin"
                 ],
-                "summary": "Exibe um artigo específico",
-                "description": "Retorna os dados de um artigo pelo slug",
-                "operationId": "6d146e32cf596432639bc033919ea386",
+                "summary": "Exibe um artigo específico (admin)",
+                "description": "Retorna os detalhes de um artigo pelo slug, incluindo autor, editor e imagens. Requer autenticação.",
+                "operationId": "4533e7fb6b6f5ad0a2f68d4a68a4c805",
                 "parameters": [
                     {
                         "name": "slug",
                         "in": "path",
+                        "description": "Slug do artigo",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "titulo-do-artigo"
                         }
                     }
                 ],
@@ -347,11 +952,91 @@
                                                 "name": {
                                                     "type": "string",
                                                     "example": "Autor do Artigo"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "author@example.com"
                                                 }
                                             },
                                             "type": "object"
                                         },
+                                        "publisher": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Editor do Artigo"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "publisher@example.com"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "coverImage": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "path": {
+                                                    "type": "string",
+                                                    "example": "articles/1/capa.jpg"
+                                                },
+                                                "is_cover": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "sort_order": {
+                                                    "type": "integer",
+                                                    "example": 0
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "images": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "path": {
+                                                        "type": "string",
+                                                        "example": "articles/1/img1.jpg"
+                                                    },
+                                                    "is_cover": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "sort_order": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "published_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
                                         "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
+                                        "updated_at": {
                                             "type": "string",
                                             "format": "date-time",
                                             "example": "2025-11-05T12:00:00Z"
@@ -362,27 +1047,77 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Artigo não encontrado"
+                        "description": "Artigo não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao exibir artigo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao exibir o artigo."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
-            }
-        },
-        "/api/v1/admin/articles/{id}": {
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "put": {
                 "tags": [
-                    "Artigos"
+                    "Artigos Admin"
                 ],
-                "summary": "Atualiza um artigo existente",
-                "description": "Atualiza dados de um artigo, incluindo publicação e imagens",
-                "operationId": "c69539c2e023f8806e074f8438119d62",
+                "summary": "Atualiza um artigo existente (admin)",
+                "description": "Atualiza os dados de um artigo pelo slug, com opção de alterar publicação e imagens. Substitui imagens da galeria, se enviadas. Requer autenticação.",
+                "operationId": "9cc54f7e81eac026af24f570054f5e25",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "slug",
                         "in": "path",
+                        "description": "Slug do artigo",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "example": "titulo-do-artigo"
                         }
                     }
                 ],
@@ -394,32 +1129,41 @@
                                 "properties": {
                                     "title": {
                                         "type": "string",
-                                        "maxLength": 150
+                                        "maxLength": 150,
+                                        "example": "Título do Artigo Atualizado"
                                     },
                                     "slug": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "titulo-do-artigo-atualizado"
                                     },
                                     "excerpt": {
                                         "type": "string",
-                                        "maxLength": 500
+                                        "maxLength": 500,
+                                        "example": "Resumo atualizado do artigo"
                                     },
                                     "content": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "Conteúdo atualizado do artigo"
                                     },
                                     "is_published": {
-                                        "type": "boolean"
+                                        "description": "Define se o artigo será publicado",
+                                        "type": "boolean",
+                                        "example": true
                                     },
                                     "is_featured": {
-                                        "type": "boolean"
+                                        "description": "Define se o artigo é destacado",
+                                        "type": "boolean",
+                                        "example": false
                                     },
                                     "cover_image": {
-                                        "description": "Imagem de capa do artigo",
+                                        "description": "Nova imagem de capa (JPEG, PNG, max: 5MB)",
                                         "type": "file"
                                     },
                                     "gallery_images[]": {
+                                        "description": "Novas imagens da galeria (JPEG, PNG, max: 5MB cada)",
                                         "type": "array",
                                         "items": {
-                                            "description": "Imagens da galeria do artigo",
                                             "type": "file"
                                         }
                                     }
@@ -442,11 +1186,201 @@
                                         },
                                         "title": {
                                             "type": "string",
-                                            "example": "Título do Artigo"
+                                            "example": "Título do Artigo Atualizado"
                                         },
                                         "slug": {
                                             "type": "string",
-                                            "example": "titulo-do-artigo"
+                                            "example": "titulo-do-artigo-atualizado"
+                                        },
+                                        "excerpt": {
+                                            "type": "string",
+                                            "example": "Resumo atualizado do artigo"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Conteúdo atualizado do artigo"
+                                        },
+                                        "is_published": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "is_featured": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "author": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Autor do Artigo"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "author@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "publisher": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Editor do Artigo"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "publisher@example.com"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "coverImage": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "path": {
+                                                    "type": "string",
+                                                    "example": "articles/1/capa.jpg"
+                                                },
+                                                "is_cover": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "sort_order": {
+                                                    "type": "integer",
+                                                    "example": 0
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "images": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "path": {
+                                                        "type": "string",
+                                                        "example": "articles/1/img1.jpg"
+                                                    },
+                                                    "is_cover": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "sort_order": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "published_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Ação não autorizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ação não autorizada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Artigo não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The title field is required."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "title": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The title field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -455,7 +1389,20 @@
                         }
                     },
                     "500": {
-                        "description": "Erro ao atualizar artigo"
+                        "description": "Erro ao atualizar artigo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao atualizar artigo."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -466,18 +1413,20 @@
             },
             "delete": {
                 "tags": [
-                    "Artigos"
+                    "Artigos Admin"
                 ],
-                "summary": "Exclui um artigo",
-                "description": "Exclui um artigo permanentemente",
-                "operationId": "44716af777bf76f1945013d26e7328fc",
+                "summary": "Exclui um artigo (admin)",
+                "description": "Realiza exclusão lógica (soft delete) de um artigo pelo slug. Requer autenticação.",
+                "operationId": "6bd6748b0f9c88451a6d2b38ad778997",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "slug",
                         "in": "path",
+                        "description": "Slug do artigo",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "example": "titulo-do-artigo"
                         }
                     }
                 ],
@@ -498,11 +1447,69 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "403": {
-                        "description": "Ação não autorizada"
+                        "description": "Ação não autorizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ação não autorizada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Artigo não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "500": {
-                        "description": "Erro ao excluir artigo"
+                        "description": "Erro ao excluir artigo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao excluir artigo: Falha no servidor."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -512,21 +1519,23 @@
                 ]
             }
         },
-        "/api/v1/admin/articles/{id}/restore": {
+        "/api/v1/admin/articles/{slug}/restore": {
             "post": {
                 "tags": [
-                    "Artigos"
+                    "Artigos Admin"
                 ],
-                "summary": "Restaura um artigo excluído",
-                "description": "Restaura um artigo que foi deletado soft-delete",
-                "operationId": "25a31885c620b72a3e7f3b0c547b1af4",
+                "summary": "Restaura um artigo excluído (admin)",
+                "description": "Restaura um artigo que foi excluído logicamente (soft delete) pelo slug. Requer autenticação.",
+                "operationId": "be1d79455b9166cd0cf3e98e319f9c69",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "slug",
                         "in": "path",
+                        "description": "Slug do artigo",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "example": "titulo-do-artigo"
                         }
                     }
                 ],
@@ -547,14 +1556,407 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "403": {
-                        "description": "Ação não autorizada"
+                        "description": "Ação não autorizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ação não autorizada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Artigo não encontrado"
+                        "description": "Artigo não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Artigo não encontrado."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "500": {
-                        "description": "Erro ao restaurar artigo"
+                        "description": "Erro ao restaurar artigo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao restaurar artigo."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/articles/{slug}/categories": {
+            "post": {
+                "tags": [
+                    "Artigos Admin"
+                ],
+                "summary": "Associa uma categoria a um artigo (admin)",
+                "description": "Associa uma categoria existente a um artigo pelo slug, verificando permissões e evitando duplicatas. Requer autenticação.",
+                "operationId": "5c2340dd36cd9a72c7e187e1cb83d6d4",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug do artigo",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "titulo-do-artigo"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "category_id"
+                                ],
+                                "properties": {
+                                    "category_id": {
+                                        "description": "ID da categoria a ser associada",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Categoria associada com sucesso ou já associada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categoria associada ao artigo com sucesso."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "article_slug": {
+                                                    "type": "string",
+                                                    "example": "titulo-do-artigo"
+                                                },
+                                                "category_slug": {
+                                                    "type": "string",
+                                                    "example": "categoria-exemplo"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Ação não autorizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ação não autorizada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Artigo ou categoria não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categoria não encontrada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The category_id field is required."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "category_id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The category_id field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao associar categoria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao associar a categoria. Tente novamente."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Artigos Admin"
+                ],
+                "summary": "Desassocia uma categoria de um artigo (admin)",
+                "description": "Remove a associação de uma categoria de um artigo pelo slug, verificando permissões e existência da associação. Requer autenticação.",
+                "operationId": "1611f199b7ebd047ba96d65f435f683b",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug do artigo",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "titulo-do-artigo"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "category_id"
+                                ],
+                                "properties": {
+                                    "category_id": {
+                                        "description": "ID da categoria a ser desassociada",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Categoria desassociada com sucesso ou não estava associada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categoria desassociada do artigo com sucesso."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "article_slug": {
+                                                    "type": "string",
+                                                    "example": "titulo-do-artigo"
+                                                },
+                                                "category_slug": {
+                                                    "type": "string",
+                                                    "example": "categoria-exemplo"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Ação não autorizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ação não autorizada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Artigo ou categoria não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categoria não encontrada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The category_id field is required."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "category_id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The category_id field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao desassociar categoria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao desassociar a categoria. Tente novamente."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1165,6 +2567,738 @@
                     }
                 }
             }
+        },
+        "/api/v1/admin/categories": {
+            "get": {
+                "tags": [
+                    "Categorias Admin"
+                ],
+                "summary": "Lista todas as categorias",
+                "description": "Retorna uma lista de categorias, incluindo as deletadas (soft delete), com informações do criador. Requer autenticação.",
+                "operationId": "57f9b5c05b65655c9abd3cfc18c753c8",
+                "responses": {
+                    "200": {
+                        "description": "Lista de categorias retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Notícias"
+                                            },
+                                            "slug": {
+                                                "type": "string",
+                                                "example": "noticias"
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                                "example": "Categoria para notícias gerais",
+                                                "nullable": true
+                                            },
+                                            "created_by": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Editor"
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "format": "email",
+                                                        "example": "editor@example.com"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "created_at": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2025-11-05T12:00:00Z"
+                                            },
+                                            "updated_at": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2025-11-05T12:00:00Z"
+                                            },
+                                            "deleted_at": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": null,
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro interno do servidor."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Categorias Admin"
+                ],
+                "summary": "Cria uma nova categoria",
+                "description": "Cria uma categoria com nome e descrição opcional. O slug é gerado automaticamente. Requer autenticação e papel de editor ou admin.",
+                "operationId": "0cd97b1236fec9cef50a996079e79e84",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "example": "Notícias"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "maxLength": 500,
+                                        "example": "Categoria para notícias gerais",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Categoria criada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Notícias"
+                                        },
+                                        "slug": {
+                                            "type": "string",
+                                            "example": "noticias"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Categoria para notícias gerais",
+                                            "nullable": true
+                                        },
+                                        "created_by": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Editor"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "editor@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Ação não autorizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ação não autorizada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The name field is required."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The name field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao criar categoria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao criar categoria: Falha no servidor."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/categories/{slug}": {
+            "get": {
+                "tags": [
+                    "Categorias Admin"
+                ],
+                "summary": "Exibe uma categoria específica",
+                "description": "Retorna os detalhes de uma categoria pelo slug, incluindo informações do criador. Requer autenticação.",
+                "operationId": "c3b5c830c83b0152e8b480d96d881329",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug da categoria",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "noticias"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Categoria retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Notícias"
+                                        },
+                                        "slug": {
+                                            "type": "string",
+                                            "example": "noticias"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Categoria para notícias gerais",
+                                            "nullable": true
+                                        },
+                                        "created_by": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Editor"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "editor@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Categoria não encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao exibir categoria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao exibir categoria."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Categorias Admin"
+                ],
+                "summary": "Atualiza uma categoria existente",
+                "description": "Atualiza os dados de uma categoria pelo slug. Requer autenticação e papel de editor ou admin.",
+                "operationId": "37be1c77176b8f793f085d002eb4e64f",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug da categoria",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "noticias"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "example": "Notícias Atualizada"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "maxLength": 500,
+                                        "example": "Categoria atualizada para notícias gerais",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Categoria atualizada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Notícias Atualizada"
+                                        },
+                                        "slug": {
+                                            "type": "string",
+                                            "example": "noticias-atualizada"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Categoria atualizada para notícias gerais",
+                                            "nullable": true
+                                        },
+                                        "created_by": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Editor"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "editor@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-05T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Ação não autorizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ação não autorizada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Categoria não encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The name field is required."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The name field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao atualizar categoria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao atualizar categoria."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Categorias Admin"
+                ],
+                "summary": "Exclui uma categoria",
+                "description": "Realiza exclusão lógica (soft delete) de uma categoria pelo slug. Requer autenticação e papel de editor ou admin.",
+                "operationId": "21b4a3cbb8abd804a7f52ab3b0ce4b89",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug da categoria",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "noticias"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Categoria excluída com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categoria deletada"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Ação não autorizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ação não autorizada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Categoria não encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao excluir categoria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao excluir categoria: Falha no servidor."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -1183,8 +3317,16 @@
             "description": "Artigos"
         },
         {
+            "name": "Artigos Admin",
+            "description": "Artigos Admin"
+        },
+        {
             "name": "Autenticação",
             "description": "Autenticação"
+        },
+        {
+            "name": "Categorias Admin",
+            "description": "Categorias Admin"
         }
     ]
 }
