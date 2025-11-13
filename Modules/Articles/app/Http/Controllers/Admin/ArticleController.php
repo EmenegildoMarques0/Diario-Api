@@ -16,6 +16,7 @@ use Modules\Articles\app\Transformers\ArticleCollection;
 use Modules\Articles\app\Transformers\ArticleResource;
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException;
+use Modules\Articles\app\Events\ArticlePublished;
 use Modules\Articles\app\Http\Requests\AttachCategoryRequest;
 
 class ArticleController extends Controller
