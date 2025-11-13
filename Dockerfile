@@ -15,10 +15,14 @@ RUN mkdir -p /var/www/storage/logs /var/www/storage/api-docs /var/www/storage/fr
     chmod 664 /var/www/storage/logs/laravel.log && \
     touch /var/www/storage/database.sqlite && \
     chmod 664 /var/www/storage/database.sqlite
-# Cria um .env temporário e gera a APP_KEY
-RUN cp .env.example .env && \
-    php artisan key:generate || \
-    { echo "Erro: Falha ao gerar APP_KEY"; exit 1; }
+# Gera a APP_KEY apenas se não for fornecida como variável de ambiente
+RUN if [ -z "$APP_KEY" ]; then \
+    echo "APP_KEY não fornecida, gerando uma nova..." && \
+    php artisan key:generate --env=.env || \
+    { echo "Erro: Falha ao gerar APP_KEY"; exit 1; }; \
+    else \
+    echo "APP_KEY fornecida pelo ambiente, usando valor existente."; \
+    fi
 # Gera caches do Laravel e documentação Swagger com logs de erro
 RUN php artisan config:cache 2> /var/www/storage/logs/config_cache.log || \
     { echo "Erro: Falha ao gerar cache de configuração. Veja /var/www/storage/logs/config_cache.log"; cat /var/www/storage/logs/config_cache.log; exit 1; } && \
@@ -30,7 +34,7 @@ RUN php artisan config:cache 2> /var/www/storage/logs/config_cache.log || \
     { echo "Erro: Falha ao gerar documentação do Swagger. Veja /var/www/storage/logs/swagger_generate.log"; cat /var/www/storage/logs/swagger_generate.log; exit 1; }
 # Etapa 2: Imagem final com PHP-FPM + Nginx
 FROM php:8.2-fpm-alpine
-# Atualiza repositórios e instala dependências do sistema e extensões PHP para MySQL, PostgreSQL e SQLite
+# Atualiza repositórios e instala dependências do sistema e extensões PHP
 RUN apk update && \
     apk add --no-cache nginx supervisor git unzip libzip-dev libpng-dev oniguruma-dev curl postgresql-dev sqlite sqlite-dev || \
     { echo "Erro: Falha ao instalar pacotes via apk"; exit 1; } && \
@@ -39,7 +43,7 @@ RUN apk update && \
 WORKDIR /var/www
 # Copia os arquivos da etapa de build
 COPY --from=build /var/www /var/www
-# Configura permissões para o usuário www-data, garantindo escrita no SQLite e uploads
+# Configura permissões para o usuário www-data
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache && \
     touch /var/www/storage/logs/laravel.log && \
