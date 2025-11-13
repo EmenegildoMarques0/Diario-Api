@@ -18,7 +18,8 @@ RUN mkdir -p /var/www/storage/logs /var/www/storage/api-docs /var/www/storage/fr
 # Gera a APP_KEY apenas se não for fornecida como variável de ambiente
 RUN if [ -z "$APP_KEY" ]; then \
     echo "APP_KEY não fornecida, gerando uma nova..." && \
-    php artisan key:generate --env=.env || \
+    cp .env.example .env && \
+    php artisan key:generate || \
     { echo "Erro: Falha ao gerar APP_KEY"; exit 1; }; \
     else \
     echo "APP_KEY fornecida pelo ambiente, usando valor existente."; \
@@ -34,7 +35,7 @@ RUN php artisan config:cache 2> /var/www/storage/logs/config_cache.log || \
     { echo "Erro: Falha ao gerar documentação do Swagger. Veja /var/www/storage/logs/swagger_generate.log"; cat /var/www/storage/logs/swagger_generate.log; exit 1; }
 # Etapa 2: Imagem final com PHP-FPM + Nginx
 FROM php:8.2-fpm-alpine
-# Atualiza repositórios e instala dependências do sistema e extensões PHP
+# Atualiza repositórios e instala dependências do sistema e extensões PHP para MySQL, PostgreSQL e SQLite
 RUN apk update && \
     apk add --no-cache nginx supervisor git unzip libzip-dev libpng-dev oniguruma-dev curl postgresql-dev sqlite sqlite-dev || \
     { echo "Erro: Falha ao instalar pacotes via apk"; exit 1; } && \
@@ -43,7 +44,7 @@ RUN apk update && \
 WORKDIR /var/www
 # Copia os arquivos da etapa de build
 COPY --from=build /var/www /var/www
-# Configura permissões para o usuário www-data
+# Configura permissões para o usuário www-data, garantindo escrita no SQLite e uploads
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache && \
     touch /var/www/storage/logs/laravel.log && \
