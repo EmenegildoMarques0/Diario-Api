@@ -3299,6 +3299,786 @@
                     }
                 ]
             }
+        },
+        "/api/v1/auth/notifications": {
+            "get": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Lista todas as notificações do usuário autenticado",
+                "description": "Retorna uma lista paginada de todas as notificações do usuário autenticado, ordenadas da mais recente para a mais antiga. Requer autenticação.",
+                "operationId": "bd4498d270ae5b50e9c7dae1e16e8ad4",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Número da página para paginação",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notificações retornadas com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "App\\\\Notifications\\\\ArticlePublished"
+                                                    },
+                                                    "notifiable_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "notifiable_type": {
+                                                        "type": "string",
+                                                        "example": "App\\\\Models\\\\User"
+                                                    },
+                                                    "data": {
+                                                        "properties": {
+                                                            "message": {
+                                                                "type": "string",
+                                                                "example": "Seu artigo foi publicado!"
+                                                            },
+                                                            "article_id": {
+                                                                "type": "integer",
+                                                                "example": 1,
+                                                                "nullable": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "read_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z",
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 15
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 50
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 4
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao carregar notificações",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao carregar notificações."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/notifications/unread": {
+            "get": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Lista notificações não lidas do usuário autenticado",
+                "description": "Retorna uma lista paginada de notificações não lidas do usuário autenticado, ordenadas da mais recente para a mais antiga. Requer autenticação.",
+                "operationId": "87a520c360c4edec5e70131a618d2018",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Número da página para paginação",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notificações não lidas retornadas com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "App\\\\Notifications\\\\ArticlePublished"
+                                                    },
+                                                    "notifiable_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "notifiable_type": {
+                                                        "type": "string",
+                                                        "example": "App\\\\Models\\\\User"
+                                                    },
+                                                    "data": {
+                                                        "properties": {
+                                                            "message": {
+                                                                "type": "string",
+                                                                "example": "Seu artigo foi publicado!"
+                                                            },
+                                                            "article_id": {
+                                                                "type": "integer",
+                                                                "example": 1,
+                                                                "nullable": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "read_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 15
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao carregar notificações não lidas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao carregar notificações não lidas."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/notifications/{id}/read": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Marca uma notificação como lida",
+                "description": "Marca uma notificação específica do usuário autenticado como lida. Requer autenticação.",
+                "operationId": "b493b72434a1b7aa2672f2514ab31b5e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID da notificação",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notificação marcada como lida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Notificação marcada como lida"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Notificação não encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Notificação não encontrada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao marcar notificação como lida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao marcar notificação como lida."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/notifications/read-all": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Marca todas as notificações como lidas",
+                "description": "Marca todas as notificações do usuário autenticado como lidas. Requer autenticação.",
+                "operationId": "4e4e3889f7fb285c75404417a825e020",
+                "responses": {
+                    "200": {
+                        "description": "Todas as notificações marcadas como lidas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Todas as notificações marcadas como lidas"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao marcar todas as notificações como lidas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao marcar todas as notificações como lidas."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/profile": {
+            "get": {
+                "tags": [
+                    "Perfil"
+                ],
+                "summary": "Exibe o perfil do usuário autenticado",
+                "description": "Retorna os detalhes do perfil do usuário autenticado. Requer autenticação.",
+                "operationId": "aeb0a04ac557b5598c94ba676b75d809",
+                "responses": {
+                    "200": {
+                        "description": "Perfil retornado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "username": {
+                                                    "type": "string",
+                                                    "example": "johndoe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "john@example.com"
+                                                },
+                                                "bio": {
+                                                    "type": "string",
+                                                    "example": "Desenvolvedor e entusiasta de tecnologia.",
+                                                    "nullable": true
+                                                },
+                                                "avatar_url": {
+                                                    "type": "string",
+                                                    "example": "avatars/1/profile.jpg",
+                                                    "nullable": true
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "editor"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-11-05T12:00:00Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-11-05T12:00:00Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao carregar perfil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao carregar perfil."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Perfil"
+                ],
+                "summary": "Atualiza o perfil do usuário autenticado",
+                "description": "Atualiza os dados do perfil do usuário autenticado, incluindo nome, username, email, bio e avatar (apenas para editores e administradores). Requer autenticação. Suporta envio de dados como JSON ou multipart/form-data.",
+                "operationId": "f002c5f576ef466b1efaece2707fd162",
+                "requestBody": {
+                    "description": "Dados do perfil a serem atualizados. Escolha entre JSON ou multipart/form-data (necessário para upload de arquivo).",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Nome do usuário",
+                                        "type": "string",
+                                        "maxLength": 150,
+                                        "example": "John Doe"
+                                    },
+                                    "username": {
+                                        "description": "Nome de usuário único",
+                                        "type": "string",
+                                        "maxLength": 80,
+                                        "example": "johndoe"
+                                    },
+                                    "email": {
+                                        "description": "Email único",
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 255,
+                                        "example": "john@example.com"
+                                    },
+                                    "bio": {
+                                        "description": "Biografia do usuário",
+                                        "type": "string",
+                                        "maxLength": 5000,
+                                        "example": "Desenvolvedor e entusiasta de tecnologia.",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Nome do usuário",
+                                        "type": "string",
+                                        "maxLength": 150,
+                                        "example": "John Doe"
+                                    },
+                                    "username": {
+                                        "description": "Nome de usuário único",
+                                        "type": "string",
+                                        "maxLength": 80,
+                                        "example": "johndoe"
+                                    },
+                                    "email": {
+                                        "description": "Email único",
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 255,
+                                        "example": "john@example.com"
+                                    },
+                                    "bio": {
+                                        "description": "Biografia do usuário",
+                                        "type": "string",
+                                        "maxLength": 5000,
+                                        "example": "Desenvolvedor e entusiasta de tecnologia.",
+                                        "nullable": true
+                                    },
+                                    "avatar": {
+                                        "description": "Imagem do avatar (JPEG, PNG, JPG, GIF, WEBP, máx: 2MB). Obrigatório para editores/administradores se enviado, opcional para outros.",
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Perfil atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Perfil atualizado com sucesso."
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "username": {
+                                                    "type": "string",
+                                                    "example": "johndoe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "john@example.com"
+                                                },
+                                                "bio": {
+                                                    "type": "string",
+                                                    "example": "Desenvolvedor e entusiasta de tecnologia.",
+                                                    "nullable": true
+                                                },
+                                                "avatar_url": {
+                                                    "type": "string",
+                                                    "example": "avatars/1/profile.jpg",
+                                                    "nullable": true
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "editor"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-11-05T12:00:00Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-11-05T12:00:00Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Ação não autorizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Você não tem permissão para fazer upload de avatar."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The avatar field is required."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "avatar": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The avatar is required for editors and administrators."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao atualizar perfil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao atualizar perfil. Tente novamente."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -3327,6 +4107,14 @@
         {
             "name": "Categorias Admin",
             "description": "Categorias Admin"
+        },
+        {
+            "name": "Notificações",
+            "description": "Notificações"
+        },
+        {
+            "name": "Perfil",
+            "description": "Perfil"
         }
     ]
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Http\Request;
 use Modules\Articles\app\Events\UserRegistered;
@@ -23,8 +24,9 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request): JsonResponse
     {
-        try {
+        DB::beginTransaction();
 
+        try {
             $user = User::create([
                 'name' => $request->name,
                 'username' => $request->username,
@@ -33,10 +35,15 @@ class AuthController extends Controller
                 'role' => $request->role ?? 'reader',
             ]);
 
-            // Dispara evento de registro
-//$user->notify(new WelcomeNotificationController($user));
+            DB::commit();
+
+            // Dispara notificação/evento dentro da transação (se preferir, pode disparar após commit)
+            $user->notify(new WelcomeNotificationController($user));
+            // Se houver um event a disparar:
+            // event(new UserRegistered($user));
 
 
+            // Cria token após commit para garantir consistência
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
@@ -46,6 +53,8 @@ class AuthController extends Controller
             ], 201);
 
         } catch (Exception $e) {
+            DB::rollBack();
+
             Log::error('Erro ao registrar usuário', [
                 'request' => $request->all(),
                 'error' => $e->getMessage(),
@@ -87,7 +96,19 @@ class AuthController extends Controller
                 ], 403);
             }
 
-            $user->updateLastLogin();
+            // Atualiza último login dentro de uma transação simples
+            DB::beginTransaction();
+            try {
+                $user->updateLastLogin();
+                DB::commit();
+            } catch (Exception $e) {
+                DB::rollBack();
+                Log::warning('Falha ao atualizar last login, prosseguindo com login', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
+                // Não interrompe o fluxo de login por causa de falha nessa atualização
+            }
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -123,7 +144,21 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            $user->tokens()->delete();
+            DB::beginTransaction();
+            try {
+                $user->tokens()->delete();
+                DB::commit();
+            } catch (Exception $e) {
+                DB::rollBack();
+                Log::error('Erro ao deletar tokens no logout', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
+
+                return response()->json([
+                    'message' => 'Erro ao realizar logout.',
+                ], 500);
+            }
 
             return response()->json([
                 'message' => 'Logout realizado com sucesso.',

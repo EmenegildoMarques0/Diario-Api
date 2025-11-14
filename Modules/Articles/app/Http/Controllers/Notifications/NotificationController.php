@@ -1,56 +1,37 @@
 <?php
 
-namespace Modules\Articles\Http\Controllers\S;
+namespace Modules\Articles\app\Http\Controllers\Notifications;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Articles\app\Transformers\NotificationResource;
 
 class NotificationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        return view('articles::index');
+        $notifications = auth()->user()->notifications()->latest()->paginate(15);
+        return response()->json(NotificationResource::collection($notifications));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function unread(): JsonResponse
     {
-        return view('articles::create');
+        $unread = auth()->user()->unreadNotifications()->latest()->paginate(15);
+        return response()->json(NotificationResource::collection($unread));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function markAsRead(string $id): JsonResponse
     {
-        return view('articles::show');
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+
+        return response()->json(['message' => 'Notificação marcada como lida']);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
+    public function markAllAsRead(): JsonResponse
     {
-        return view('articles::edit');
+        auth()->user()->markAllNotificationsAsRead();
+        return response()->json(['message' => 'Todas as notificações marcadas como lidas']);
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }

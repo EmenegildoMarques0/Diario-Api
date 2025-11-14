@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Articles\app\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use Modules\Articles\app\Http\Controllers\ArticlesController;
 use Modules\Articles\app\Http\Controllers\CategoryController;
-use Modules\Articles\Http\Controllers\S\NotificationController;
+use Modules\Articles\app\Http\Controllers\Notifications\NotificationController;
 
 Route::prefix('v1')->group(function () {
     // Rotas públicas de artigos
@@ -35,7 +35,7 @@ Route::prefix('v1')->group(function () {
 
         // Rotas de notificações (acessíveis para usuários autenticados)
         Route::prefix('auth')->group(function () {
-            Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+            Route::get('notifications', [NotificationController::class, 'index']);
             Route::get('notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
             Route::patch('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
             Route::patch('notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
