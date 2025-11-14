@@ -10,7 +10,7 @@ return new class extends Migration {
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade')->nullable();
             $table->string('type'); // ex.: 'welcome', 'new_article'
             $table->morphs('notifiable'); // polimórfico para artigos, categorias, etc.
             $table->json('data'); // detalhes da notificação
