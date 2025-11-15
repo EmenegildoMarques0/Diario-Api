@@ -53,8 +53,8 @@ WORKDIR /var/www
 # Instala pacotes e extensões PHP necessárias
 RUN apk update && apk add --no-cache \
     nginx supervisor git unzip libzip-dev libpng-dev oniguruma-dev curl postgresql-dev sqlite sqlite-dev \
-    py3-setuptools=80.0.0-r0 \
-    || { echo "Erro: Falha ao instalar pacotes via apk"; exit 1; } && \
+    py3-setuptools \
+    && { echo "Pacotes instalados com sucesso"; } || { echo "Erro: Falha ao instalar pacotes via apk"; exit 1; } && \
     docker-php-ext-install pdo pdo_mysql pdo_pgsql pgsql pdo_sqlite mbstring zip bcmath || \
     { echo "Erro: Falha ao instalar extensões do PHP"; exit 1; } && \
     # Verifica se php-fpm e nginx estão disponíveis
