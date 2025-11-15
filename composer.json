@@ -13,7 +13,8 @@
         "laravel/sanctum": "^4.0",
         "laravel/telescope": "^5.15",
         "laravel/tinker": "^2.10.1",
-        "nwidart/laravel-modules": "^12.0"
+        "nwidart/laravel-modules": "^12.0",
+        "league/flysystem-aws-s3-v3": "^4.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

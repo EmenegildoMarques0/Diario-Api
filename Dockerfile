@@ -47,7 +47,7 @@ RUN php artisan config:cache 2> /var/www/storage/logs/config_cache.log || \
 # ---------------------------------------------------------
 # Etapa 2: Imagem final com PHP-FPM + Nginx (Alpine)
 # ---------------------------------------------------------
-FROM php:8.2-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 WORKDIR /var/www
 
