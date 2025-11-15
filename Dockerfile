@@ -1,5 +1,5 @@
 # Etapa 1: Build das dependências PHP
-FROM composer:2 AS build
+FROM composer:2.8 AS build
 WORKDIR /var/www
 # Copia os arquivos de dependências
 COPY composer.json composer.lock ./
@@ -33,7 +33,7 @@ RUN php artisan config:cache 2> /var/www/storage/logs/config_cache.log || \
     { echo "Erro: Falha ao gerar documentação do Swagger. Veja /var/www/storage/logs/swagger_generate.log"; cat /var/www/storage/logs/swagger_generate.log; exit 1; }
 
 # Etapa 2: Imagem final com PHP-FPM + Nginx
-FROM php:8.2-fpm-alpine
+FROM php:8.4-fpm-alpine
 # Atualiza repositórios e instala dependências do sistema e extensões PHP para MySQL, PostgreSQL e SQLite
 RUN apk update && \
     apk add --no-cache nginx supervisor git unzip libzip-dev libpng-dev oniguruma-dev curl postgresql-dev sqlite sqlite-dev || \
