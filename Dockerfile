@@ -48,15 +48,18 @@ RUN php artisan config:cache 2> /var/www/storage/logs/config_cache.log || \
 # Etapa 2: Imagem final com PHP-FPM + Nginx (Alpine)
 # ---------------------------------------------------------
 FROM php:8.4-fpm-alpine
-
 WORKDIR /var/www
 
 # Instala pacotes e extensões PHP necessárias
 RUN apk update && apk add --no-cache \
     nginx supervisor git unzip libzip-dev libpng-dev oniguruma-dev curl postgresql-dev sqlite sqlite-dev \
+    py3-setuptools=80.0.0-r0 \
     || { echo "Erro: Falha ao instalar pacotes via apk"; exit 1; } && \
     docker-php-ext-install pdo pdo_mysql pdo_pgsql pgsql pdo_sqlite mbstring zip bcmath || \
-    { echo "Erro: Falha ao instalar extensões do PHP"; exit 1; }
+    { echo "Erro: Falha ao instalar extensões do PHP"; exit 1; } && \
+    # Verifica se php-fpm e nginx estão disponíveis
+    which /usr/local/sbin/php-fpm || { echo "Erro: php-fpm não encontrado"; exit 1; } && \
+    which nginx || { echo "Erro: nginx não encontrado"; exit 1; }
 
 # Copia tudo da etapa de build (código + vendor)
 COPY --from=build /var/www /var/www
@@ -71,8 +74,9 @@ RUN mkdir -p /var/www/storage/logs && \
     /var/www/storage/logs/laravel.log \
     /var/www/storage/logs/supervisord.log \
     /var/www/storage/logs/nightwatch_agent.log && \
-    chown -R www-data:www-data /var/www/storage/logs && \
-    chmod -R 664 /var/www/storage/logs
+    chown -R www-data:www-data /var/www/storage && \
+    chmod -R 775 /var/www/storage && \
+    chmod 664 /var/www/storage/logs/*
 
 # Configura permissões para storage e bootstrap/cache
 RUN mkdir -p /var/www/storage/framework/{sessions,views,cache} \
@@ -98,6 +102,10 @@ RUN php artisan storage:link 2> /var/www/storage/logs/storage_link.log || \
 # Copia arquivos de configuração
 COPY ./deploy/nginx.conf /etc/nginx/nginx.conf
 COPY ./deploy/supervisord.conf /etc/supervisord.conf
+
+# Valida configurações do Nginx e Supervisor
+RUN nginx -t || { echo "Erro na configuração do Nginx"; exit 1; } && \
+    supervisord -c /etc/supervisord.conf --check || { echo "Erro na configuração do Supervisor"; exit 1; }
 
 # Expõe porta
 EXPOSE 8080
