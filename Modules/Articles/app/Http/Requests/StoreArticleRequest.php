@@ -20,8 +20,8 @@ class StoreArticleRequest extends FormRequest
             'slug' => 'required|string|unique:articles,slug',
             'excerpt' => 'nullable|string|max:500',
             'content' => 'required|string',
-            'is_published' => 'sometimes|boolean|string',
-            'is_featured' => 'sometimes|boolean|string',
+            'is_published' => 'sometimes|boolean',
+            'is_featured' => 'sometimes|boolean',
 
             // Imagem de capa
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
