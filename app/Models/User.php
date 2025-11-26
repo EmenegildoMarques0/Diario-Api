@@ -51,4 +51,21 @@ class User extends Authenticatable
     {
         $this->update(['last_login_at' => now()]);
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(\Illuminate\Notifications\DatabaseNotification::class);
+    }
+
+    // Notificações não lidas
+    public function unreadNotifications()
+    {
+        return $this->notifications()->whereNull('read_at');
+    }
+
+    // Marca todas as notificações como lidas
+    public function markAllNotificationsAsRead()
+    {
+        $this->unreadNotifications()->update(['read_at' => now()]);
+    }
 }
