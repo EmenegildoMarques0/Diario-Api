@@ -17,6 +17,7 @@ use Modules\Articles\app\Transformers\ArticleResource;
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException;
 use Modules\Articles\app\Events\ArticlePublished;
+use Modules\Articles\app\Http\Controllers\Notifications\ArticlePublishedByAdminNotification;
 use Modules\Articles\app\Http\Requests\AttachCategoryRequest;
 
 class ArticleController extends Controller
@@ -128,15 +129,20 @@ class ArticleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateArticleRequest $request, Article $article): JsonResponse
-    {
-        try {
-            $this->authorize('update', $article);
-            //dd($request->all());
+   public function update(UpdateArticleRequest $request, Article $article): JsonResponse
+{
+    try {
+        $this->authorize('update', $article);
 
+        return DB::transaction(function () use ($request, $article) {
             $data = $request->except(['cover_image', 'gallery_images']);
 
-            if ($request->has('is_published') && $request->boolean('is_published') && !$article->is_published) {
+            // Verifica se está sendo publicado agora
+            $wasJustPublished = $request->has('is_published')
+                && $request->boolean('is_published')
+                && !$article->is_published;
+
+            if ($wasJustPublished) {
                 $data['published_at'] = now();
                 $data['published_by'] = auth()->id();
             }
@@ -156,18 +162,38 @@ class ArticleController extends Controller
                 }
             }
 
+            // === NOTIFICAÇÃO: Admin publicou artigo de outro autor ===
+            if ($wasJustPublished && auth()->user()->role === 'admin' && $article->author_id !== auth()->id()) {
+                $author = $article->author;
+
+                if ($author) {
+                    // Notificação dentro da transação → se falhar, tudo reverte
+                    $author->notify(new ArticlePublishedByAdminNotification($article, auth()->user()));
+
+                    \Log::info('Notificação enviada com sucesso', [
+                        'article_id' => $article->id,
+                        'author_id' => $author->id,
+                        'admin_id' => auth()->id(),
+                    ]);
+                }
+            }
+
             return response()->json(new ArticleResource(
                 $article->load(['author', 'publisher', 'coverImage', 'images'])
             ));
-        } catch (Exception $e) {
-            \Log::error('Erro ao atualizar artigo', [
-                'article_id' => $article->id,
-                'error' => $e->getMessage(),
-            ]);
+        });
 
-            return response()->json(['message' => 'Erro ao atualizar artigo.'], 500);
-        }
+    } catch (Exception $e) {
+        \Log::error('Erro ao atualizar artigo (transação revertida)', [
+            'article_id' => $article->id ?? null,
+            'user_id' => auth()->id() ?? null,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        return response()->json(['message' => 'Erro ao atualizar artigo.'], 500);
     }
+}
 
     /**
      * Remove the specified resource from storage.
