@@ -12,8 +12,8 @@ class UserManagementAnnotationController extends Controller
      * @OA\Get(
      *     path="/api/v1/auth/users",
      *     tags={"Usuários Admin"},
-     *     summary="Lista todos os usuários agrupados por papel (role)",
-     *     description="Retorna todos os usuários (ativos e inativos) agrupados por `admin`, `editor` e `reader`. Suporta filtros de busca e status. Requer autenticação e papel de admin.",
+     *     summary="Lista todos os usuários em uma única lista (sem agrupar por role)",
+     *     description="Retorna todos os usuários (ativos e desativados) em uma lista plana, ordenados por prioridade de role (admin > editor > reader) e data de criação (mais recente primeiro). Suporta filtros de busca e status. Requer autenticação e papel de admin.",
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="search",
@@ -25,80 +25,34 @@ class UserManagementAnnotationController extends Controller
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="Filtra por status: all, active, trashed",
+     *         description="Filtra por status: all (padrão), active, trashed",
      *         required=false,
      *         @OA\Schema(type="string", enum={"all", "active", "trashed"}, example="all")
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Lista agrupada retornada com sucesso",
+     *         description="Lista de usuários retornada com sucesso",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(property="search", type="string", nullable=true, example="john"),
      *             @OA\Property(property="status", type="string", example="all"),
-     *             @OA\Property(property="total", type="integer", example=155),
+     *             @OA\Property(property="total", type="integer", example=15),
      *             @OA\Property(
-     *                 property="grouped",
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="admin",
+     *                 property="users",
+     *                 type="array",
+     *                 @OA\Items(
      *                     type="object",
-     *                     @OA\Property(property="total", type="integer", example=2),
-     *                     @OA\Property(
-     *                         property="users",
-     *                         type="array",
-     *                         @OA\Items(
-     *                             type="object",
-     *                             @OA\Property(property="id", type="integer", example=1),
-     *                             @OA\Property(property="name", type="string", example="Admin User"),
-     *                             @OA\Property(property="email", type="string", format="email", example="admin@example.com"),
-     *                             @OA\Property(property="username", type="string", example="admin"),
-     *                             @OA\Property(property="role", type="string", example="admin"),
-     *                             @OA\Property(property="created_at", type="string", format="date-time", example="2025-11-05T12:00:00Z"),
-     *                             @OA\Property(property="updated_at", type="string", format="date-time", example="2025-11-05T12:00:00Z"),
-     *                             @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true, example=null)
-     *                         )
-     *                     )
-     *                 ),
-     *                 @OA\Property(
-     *                     property="editor",
-     *                     type="object",
-     *                     @OA\Property(property="total", type="integer", example=5),
-     *                     @OA\Property(
-     *                         property="users",
-     *                         type="array",
-     *                         @OA\Items(
-     *                             type="object",
-     *                             @OA\Property(property="id", type="integer", example=10),
-     *                             @OA\Property(property="name", type="string", example="Editor User"),
-     *                             @OA\Property(property="email", type="string", format="email", example="editor@example.com"),
-     *                             @OA\Property(property="username", type="string", example="editor1"),
-     *                             @OA\Property(property="role", type="string", example="editor"),
-     *                             @OA\Property(property="created_at", type="string", format="date-time", example="2025-11-04T10:00:00Z"),
-     *                             @OA\Property(property="updated_at", type="string", format="date-time", example="2025-11-04T10:00:00Z"),
-     *                             @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true, example=null)
-     *                         )
-     *                     )
-     *                 ),
-     *                 @OA\Property(
-     *                     property="reader",
-     *                     type="object",
-     *                     @OA\Property(property="total", type="integer", example=148),
-     *                     @OA\Property(
-     *                         property="users",
-     *                         type="array",
-     *                         @OA\Items(
-     *                             type="object",
-     *                             @OA\Property(property="id", type="integer", example=100),
-     *                             @OA\Property(property="name", type="string", example="Leitor Comum"),
-     *                             @OA\Property(property="email", type="string", format="email", example="leitor@example.com"),
-     *                             @OA\Property(property="username", type="string", example="leitor123"),
-     *                             @OA\Property(property="role", type="string", example="reader"),
-     *                             @OA\Property(property="created_at", type="string", format="date-time", example="2025-11-01T08:00:00Z"),
-     *                             @OA\Property(property="updated_at", type="string", format="date-time", example="2025-11-01T08:00:00Z"),
-     *                             @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true, example="2025-11-20T15:00:00Z")
-     *                         )
-     *                     )
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="John Doe 2"),
+     *                     @OA\Property(property="username", type="string", example="johndoe"),
+     *                     @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *                     @OA\Property(property="role", type="string", example="admin"),
+     *                     @OA\Property(property="bio", type="string", nullable=true, example="Teste de bio"),
+     *                     @OA\Property(property="avatar_url", type="string", nullable=true, example=null),
+     *                     @OA\Property(property="can_upload_avatar", type="boolean", example=true),
+     *                     @OA\Property(property="created_at", type="string", format="date-time", example="2025-11-05T12:00:00Z"),
+     *                     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-11-05T12:00:00Z"),
+     *                     @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true, example=null)
      *                 )
      *             )
      *         )

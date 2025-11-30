@@ -4085,8 +4085,8 @@
                 "tags": [
                     "Usuários Admin"
                 ],
-                "summary": "Lista todos os usuários agrupados por papel (role)",
-                "description": "Retorna todos os usuários (ativos e inativos) agrupados por `admin`, `editor` e `reader`. Suporta filtros de busca e status. Requer autenticação e papel de admin.",
+                "summary": "Lista todos os usuários em uma única lista (sem agrupar por role)",
+                "description": "Retorna todos os usuários (ativos e desativados) em uma lista plana, ordenados por prioridade de role (admin > editor > reader) e data de criação (mais recente primeiro). Suporta filtros de busca e status. Requer autenticação e papel de admin.",
                 "operationId": "eb0cc3f2feffa1616de0ceced6ee852d",
                 "parameters": [
                     {
@@ -4102,7 +4102,7 @@
                     {
                         "name": "status",
                         "in": "query",
-                        "description": "Filtra por status: all, active, trashed",
+                        "description": "Filtra por status: all (padrão), active, trashed",
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -4117,7 +4117,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Lista agrupada retornada com sucesso",
+                        "description": "Lista de usuários retornada com sucesso",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4133,174 +4133,66 @@
                                         },
                                         "total": {
                                             "type": "integer",
-                                            "example": 155
+                                            "example": 15
                                         },
-                                        "grouped": {
-                                            "properties": {
-                                                "admin": {
-                                                    "properties": {
-                                                        "total": {
-                                                            "type": "integer",
-                                                            "example": 2
-                                                        },
-                                                        "users": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "properties": {
-                                                                    "id": {
-                                                                        "type": "integer",
-                                                                        "example": 1
-                                                                    },
-                                                                    "name": {
-                                                                        "type": "string",
-                                                                        "example": "Admin User"
-                                                                    },
-                                                                    "email": {
-                                                                        "type": "string",
-                                                                        "format": "email",
-                                                                        "example": "admin@example.com"
-                                                                    },
-                                                                    "username": {
-                                                                        "type": "string",
-                                                                        "example": "admin"
-                                                                    },
-                                                                    "role": {
-                                                                        "type": "string",
-                                                                        "example": "admin"
-                                                                    },
-                                                                    "created_at": {
-                                                                        "type": "string",
-                                                                        "format": "date-time",
-                                                                        "example": "2025-11-05T12:00:00Z"
-                                                                    },
-                                                                    "updated_at": {
-                                                                        "type": "string",
-                                                                        "format": "date-time",
-                                                                        "example": "2025-11-05T12:00:00Z"
-                                                                    },
-                                                                    "deleted_at": {
-                                                                        "type": "string",
-                                                                        "format": "date-time",
-                                                                        "example": null,
-                                                                        "nullable": true
-                                                                    }
-                                                                },
-                                                                "type": "object"
-                                                            }
-                                                        }
+                                        "users": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
                                                     },
-                                                    "type": "object"
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "John Doe 2"
+                                                    },
+                                                    "username": {
+                                                        "type": "string",
+                                                        "example": "johndoe"
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "format": "email",
+                                                        "example": "john@example.com"
+                                                    },
+                                                    "role": {
+                                                        "type": "string",
+                                                        "example": "admin"
+                                                    },
+                                                    "bio": {
+                                                        "type": "string",
+                                                        "example": "Teste de bio",
+                                                        "nullable": true
+                                                    },
+                                                    "avatar_url": {
+                                                        "type": "string",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    },
+                                                    "can_upload_avatar": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    },
+                                                    "deleted_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    }
                                                 },
-                                                "editor": {
-                                                    "properties": {
-                                                        "total": {
-                                                            "type": "integer",
-                                                            "example": 5
-                                                        },
-                                                        "users": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "properties": {
-                                                                    "id": {
-                                                                        "type": "integer",
-                                                                        "example": 10
-                                                                    },
-                                                                    "name": {
-                                                                        "type": "string",
-                                                                        "example": "Editor User"
-                                                                    },
-                                                                    "email": {
-                                                                        "type": "string",
-                                                                        "format": "email",
-                                                                        "example": "editor@example.com"
-                                                                    },
-                                                                    "username": {
-                                                                        "type": "string",
-                                                                        "example": "editor1"
-                                                                    },
-                                                                    "role": {
-                                                                        "type": "string",
-                                                                        "example": "editor"
-                                                                    },
-                                                                    "created_at": {
-                                                                        "type": "string",
-                                                                        "format": "date-time",
-                                                                        "example": "2025-11-04T10:00:00Z"
-                                                                    },
-                                                                    "updated_at": {
-                                                                        "type": "string",
-                                                                        "format": "date-time",
-                                                                        "example": "2025-11-04T10:00:00Z"
-                                                                    },
-                                                                    "deleted_at": {
-                                                                        "type": "string",
-                                                                        "format": "date-time",
-                                                                        "example": null,
-                                                                        "nullable": true
-                                                                    }
-                                                                },
-                                                                "type": "object"
-                                                            }
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "reader": {
-                                                    "properties": {
-                                                        "total": {
-                                                            "type": "integer",
-                                                            "example": 148
-                                                        },
-                                                        "users": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "properties": {
-                                                                    "id": {
-                                                                        "type": "integer",
-                                                                        "example": 100
-                                                                    },
-                                                                    "name": {
-                                                                        "type": "string",
-                                                                        "example": "Leitor Comum"
-                                                                    },
-                                                                    "email": {
-                                                                        "type": "string",
-                                                                        "format": "email",
-                                                                        "example": "leitor@example.com"
-                                                                    },
-                                                                    "username": {
-                                                                        "type": "string",
-                                                                        "example": "leitor123"
-                                                                    },
-                                                                    "role": {
-                                                                        "type": "string",
-                                                                        "example": "reader"
-                                                                    },
-                                                                    "created_at": {
-                                                                        "type": "string",
-                                                                        "format": "date-time",
-                                                                        "example": "2025-11-01T08:00:00Z"
-                                                                    },
-                                                                    "updated_at": {
-                                                                        "type": "string",
-                                                                        "format": "date-time",
-                                                                        "example": "2025-11-01T08:00:00Z"
-                                                                    },
-                                                                    "deleted_at": {
-                                                                        "type": "string",
-                                                                        "format": "date-time",
-                                                                        "example": "2025-11-20T15:00:00Z",
-                                                                        "nullable": true
-                                                                    }
-                                                                },
-                                                                "type": "object"
-                                                            }
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
+                                                "type": "object"
+                                            }
                                         }
                                     },
                                     "type": "object"
