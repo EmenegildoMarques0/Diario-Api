@@ -3744,6 +3744,315 @@
                 ]
             }
         },
+        "/api/v1/admin/dashboard/overview": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Admin dashboard overview",
+                "description": "Returns a comprehensive overview of the admin dashboard including article statistics, recent content, charts, and top read articles. Requires admin authentication.",
+                "operationId": "3402df306282832f09a5d42af08abd67",
+                "responses": {
+                    "200": {
+                        "description": "Overview data returned successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "summary": {
+                                            "properties": {
+                                                "total_articles": {
+                                                    "type": "integer",
+                                                    "example": 120
+                                                },
+                                                "published_articles": {
+                                                    "type": "integer",
+                                                    "example": 95
+                                                },
+                                                "draft_articles": {
+                                                    "type": "integer",
+                                                    "example": 20
+                                                },
+                                                "trashed_articles": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "total_categories": {
+                                                    "type": "integer",
+                                                    "example": 12
+                                                },
+                                                "categories_with_articles": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "authors": {
+                                                    "type": "integer",
+                                                    "example": 8
+                                                },
+                                                "total_users": {
+                                                    "type": "integer",
+                                                    "example": 45
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "recent_articles": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Aplicação Fullstack em MINUTOS"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "aplicacao-fullstack-em-minutos"
+                                                    },
+                                                    "author": {
+                                                        "type": "string",
+                                                        "example": "John Doe"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "Publicado"
+                                                    },
+                                                    "status_color": {
+                                                        "type": "string",
+                                                        "example": "green"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "example": "10 minutes ago"
+                                                    },
+                                                    "cover_url": {
+                                                        "type": "string",
+                                                        "example": "https://s3.amazonaws.com/articles/1/cover.png",
+                                                        "nullable": true
+                                                    },
+                                                    "edit_url": {
+                                                        "type": "string",
+                                                        "example": "http://127.0.0.1:8000/v1/admin/articles/slug/edit"
+                                                    },
+                                                    "restore_url": {
+                                                        "type": "string",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    },
+                                                    "view_url": {
+                                                        "type": "string",
+                                                        "example": "http://127.0.0.1:8000/v1/articles/slug",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "recent_categories": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Tecnologia"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "tecnologia"
+                                                    },
+                                                    "articles_count": {
+                                                        "type": "integer",
+                                                        "example": 15
+                                                    },
+                                                    "creator": {
+                                                        "type": "string",
+                                                        "example": "John Doe"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "example": "02/12/2025"
+                                                    },
+                                                    "edit_url": {
+                                                        "type": "string",
+                                                        "example": "http://127.0.0.1:8000/v1/admin/categories/tecnologia/edit"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "charts": {
+                                            "properties": {
+                                                "articles_per_day": {
+                                                    "properties": {
+                                                        "labels": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "example": "03/11"
+                                                            }
+                                                        },
+                                                        "created": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "integer",
+                                                                "example": 0
+                                                            }
+                                                        },
+                                                        "read": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "integer",
+                                                                "example": 45
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "articles_by_category": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "label": {
+                                                                "type": "string",
+                                                                "example": "Tecnologia"
+                                                            },
+                                                            "value": {
+                                                                "type": "integer",
+                                                                "example": 35
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "status_distribution": {
+                                                    "properties": {
+                                                        "published": {
+                                                            "type": "integer",
+                                                            "example": 95
+                                                        },
+                                                        "draft": {
+                                                            "type": "integer",
+                                                            "example": 20
+                                                        },
+                                                        "trashed": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "most_read_articles": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Aplicação Fullstack em MINUTOS"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "aplicacao-fullstack-em-minutos"
+                                                    },
+                                                    "author": {
+                                                        "type": "string",
+                                                        "example": "John Doe"
+                                                    },
+                                                    "views": {
+                                                        "type": "integer",
+                                                        "example": 1247
+                                                    },
+                                                    "published_at": {
+                                                        "type": "string",
+                                                        "example": "02/12/2025"
+                                                    },
+                                                    "cover_url": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "view_url": {
+                                                        "type": "string",
+                                                        "example": "http://127.0.0.1:8000/v1/articles/slug"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User lacks permission",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This action is unauthorized."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to load dashboard overview."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/auth/profile": {
             "get": {
                 "tags": [
@@ -4690,6 +4999,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Dashboard",
+            "description": "Endpoints para o painel administrativo"
+        },
         {
             "name": "Artigos",
             "description": "Artigos"
