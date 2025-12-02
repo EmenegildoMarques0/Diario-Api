@@ -32,4 +32,9 @@ class ArticlePolicy
     {
         return $user->role === 'admin';
     }
+
+    public function viewAny(User $user): bool
+    {
+        return $user->isAdmin('admin'); // ou $user->is_admin, etc.
+    }
 }

@@ -61,4 +61,9 @@ class User extends Authenticatable
     {
         $this->unreadNotifications()->update(['read_at' => now()]);
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 }
