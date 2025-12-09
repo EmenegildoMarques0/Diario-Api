@@ -198,6 +198,122 @@
                 }
             }
         },
+        "/api/v1/articles/featured": {
+            "get": {
+                "tags": [
+                    "Artigos"
+                ],
+                "summary": "Lista artigos em destaque (Featured)",
+                "description": "Retorna uma lista de artigos publicados e marcados como destaque (`is_featured=true`). Usa cache inteligente. Não requer autenticação.",
+                "operationId": "2340ed284b5f2772fd2fa59f78de608d",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Limite de artigos a serem retornados (Padrão: 6)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 6
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de artigos em destaque retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Título do Artigo em Destaque"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "titulo-do-artigo-destaque"
+                                                    },
+                                                    "excerpt": {
+                                                        "type": "string",
+                                                        "example": "Resumo do artigo"
+                                                    },
+                                                    "is_published": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "is_featured": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "author": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Autor do Artigo"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "coverImage": {
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string",
+                                                                "example": "articles/1/capa.jpg"
+                                                            }
+                                                        },
+                                                        "type": "object",
+                                                        "nullable": true
+                                                    },
+                                                    "published_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-05T12:00:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao carregar artigos em destaque",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao carregar artigos em destaque."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/articles/{slug}": {
             "get": {
                 "tags": [
@@ -1328,38 +1444,6 @@
                             }
                         }
                     },
-                    "403": {
-                        "description": "Ação não autorizada",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Ação não autorizada."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Artigo não encontrado",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Not Found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
                     "422": {
                         "description": "Erro de validação",
                         "content": {
@@ -1396,7 +1480,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Erro ao atualizar artigo."
+                                            "example": "Erro ao atualizar artigo: Falha ao salvar imagem."
                                         }
                                     },
                                     "type": "object"
