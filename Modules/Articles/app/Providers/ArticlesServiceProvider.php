@@ -4,6 +4,8 @@ namespace Modules\Articles\app\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Articles\app\Events\ArticlePublished;
+use Modules\Articles\app\Listeners\SendNewArticleEmailToAllUsers;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -26,8 +28,14 @@ class ArticlesServiceProvider extends ServiceProvider
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
+        $this->loadViewsFrom(module_path('Articles', 'Views'), 'Articles');
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
         \Modules\Articles\app\Models\Article::observe(\Modules\Articles\app\Observers\ArticleObserverObserver::class);
+        $this->app['events']->listen(
+            ArticlePublished::class,
+            SendNewArticleEmailToAllUsers::class
+        );
+
     }
 
     /**

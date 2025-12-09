@@ -14,9 +14,7 @@ class EventServiceProvider extends ServiceProvider
         UserRegistered::class => [
             SendWelcomeNotification::class,
         ],
-        ArticlePublished::class => [
-            SendArticlePublishedNotification::class,
-        ],
+
     ];
 
     // IMPORTANTE: Desativar descoberta automática

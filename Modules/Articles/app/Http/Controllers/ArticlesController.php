@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Modules\Articles\app\Events\ArticlePublished;
 use Modules\Articles\app\Models\Article;
 use Modules\Articles\app\Transformers\ArticleCollection;
 use Modules\Articles\app\Transformers\ArticleResource;
@@ -78,6 +79,10 @@ class ArticlesController extends Controller
 
             $article->incrementViewCount();
 
+           // dd($article);
+
+            //event(new ArticlePublished($article));
+
             return response()->json(new ArticleResource(
                 $article->load(['author', 'publisher', 'coverImage', 'images'])
             ));
@@ -89,6 +94,7 @@ class ArticlesController extends Controller
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
 
             return response()->json([
                 'error' => 'Erro ao exibir o artigo.',
