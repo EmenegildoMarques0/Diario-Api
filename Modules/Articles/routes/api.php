@@ -10,6 +10,7 @@ Route::prefix('v1')->group(function () {
     // Rotas públicas de artigos
     Route::prefix('articles')->group(function () {
         Route::get('/', [ArticlesController::class, 'index'])->name('articles.index');
+        Route::get('/featured', [ArticlesController::class, 'featured'])->name('articles.featured');
         Route::get('/{article:slug}', [ArticlesController::class, 'show'])->name('articles.show');
     });
 

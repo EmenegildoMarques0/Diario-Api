@@ -20,8 +20,8 @@ class UpdateArticleRequest extends FormRequest
             'slug' => 'sometimes|string|unique:articles,slug,' . $article->id,
             'excerpt' => 'nullable|string|max:500',
             'content' => 'sometimes|string',
-            'is_published' => 'sometimes|boolean',
-            'is_featured' => 'sometimes|boolean',
+            'is_published' => 'sometimes|in:0,1,true,false',
+            'is_featured' => 'sometimes|in:0,1,true,false',
 
             'cover_image' => 'sometimes|image|mimes:jpeg,png,jpg,webp|max:2048',
             'gallery_images' => 'sometimes|array',

@@ -74,7 +74,8 @@ class Article extends Model
 
   public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class, 'article_category')
+        return $this->belongsToMany(Category::class, 'article_category', 'article_id',
+        'category_id')
                     ->using(ArticleCategory::class) // opcional
                     ->withTimestamps();
     }
