@@ -14,6 +14,9 @@ class EventServiceProvider extends ServiceProvider
         UserRegistered::class => [
             SendWelcomeNotification::class,
         ],
+        \Modules\Articles\app\Events\ArticleReadyForNewsletter::class => [
+        \Modules\Articles\app\Listeners\SendArticleToSubscribers::class,
+    ],
 
     ];
 
