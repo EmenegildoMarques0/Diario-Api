@@ -6,11 +6,13 @@ namespace Modules\Articles\app\Http\Controllers\Notifications;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache; // Importado
 use Exception;
 use Modules\Articles\app\Models\NewsletterSubscriber;
 use Modules\Articles\app\Models\Article;
-use Modules\Articles\app\Models\ArticleNewsletterLog; // Importado para o novo método
+use Modules\Articles\app\Models\ArticleNewsletterLog;
 use Modules\Articles\app\Events\ArticleReadyForNewsletter;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator; // Importação útil para o tipo de retorno do cache
 
 class NewsletterController extends Controller
 {
@@ -30,6 +32,9 @@ class NewsletterController extends Controller
                     'is_subscribed' => true,
                 ]
             );
+
+            // INVALIDE O CACHE DE ESTATÍSTICAS
+            Cache::forget('newsletter_stats');
 
             return response()->json([
                 'success' => true,
@@ -58,6 +63,9 @@ class NewsletterController extends Controller
         try {
             $subscriber = NewsletterSubscriber::findOrFail($id);
             $subscriber->update(['is_subscribed' => false]);
+
+            // INVALIDE O CACHE DE ESTATÍSTICAS
+            Cache::forget('newsletter_stats');
 
             return response()->json([
                 'success' => true,
@@ -120,19 +128,27 @@ class NewsletterController extends Controller
     // 4. GET /api/newsletter/subscribers/stats
     public function stats()
     {
-        try {
-            $total = NewsletterSubscriber::count();
-            $active = NewsletterSubscriber::where('is_subscribed', true)->count();
-            $inactive = NewsletterSubscriber::where('is_subscribed', false)->count();
+        $cacheKey = 'newsletter_stats';
+        $cacheDuration = now()->addMinutes(60); // Cache por 60 minutos
 
-            return response()->json([
-                'success' => true,
-                'data' => [
+        try {
+            // Usa Cache::remember para buscar os dados do cache ou do DB
+            $stats = Cache::remember($cacheKey, $cacheDuration, function () {
+                $total = NewsletterSubscriber::count();
+                $active = NewsletterSubscriber::where('is_subscribed', true)->count();
+                $inactive = NewsletterSubscriber::where('is_subscribed', false)->count();
+
+                return [
                     'total'       => $total,
                     'active'      => $active,
                     'inactive'    => $inactive,
                     'active_rate' => $total > 0 ? round(($active / $total) * 100, 1) : 0
-                ]
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $stats
             ], 200);
 
         } catch (Exception $e) {
@@ -151,15 +167,12 @@ class NewsletterController extends Controller
     {
         // --- 1. AUTENTICAÇÃO E VALIDAÇÃO ---
 
-        // Garante que a requisição está autenticada
         if (!auth()->check()) {
             return response()->json(['success' => false, 'message' => 'Acesso não autorizado. É necessário estar logado para disparar a Newsletter.'], 401);
         }
 
-        // Captura o ID do usuário logado que está disparando a ação
         $userId = auth()->id();
 
-        // Validação do Slug
         $request->validate([
             'slug' => 'required|string|max:255',
         ]);
@@ -178,7 +191,10 @@ class NewsletterController extends Controller
             }
 
             // --- 3. DISPARO DO EVENTO ---
-            // Passamos o objeto Article e o ID do usuário (senderId)
+
+            // Invalida o cache da primeira página dos logs, pois um novo item será adicionado
+            Cache::forget('newsletter_logs_page_1_perpage_20');
+
             event(new ArticleReadyForNewsletter($article, $userId));
 
             Log::info("Evento ArticleReadyForNewsletter disparado pelo User ID {$userId} para o artigo: {$article->title}");
@@ -207,18 +223,32 @@ class NewsletterController extends Controller
      */
     public function sentArticlesLog(Request $request)
     {
-        // Opcional: Você pode querer restringir este acesso apenas a usuários autenticados
         if (!auth()->check()) {
             return response()->json(['success' => false, 'message' => 'Acesso não autorizado.'], 401);
         }
 
-        try {
-            // Usa o Eager Loading para carregar os detalhes do artigo e do remetente (sender)
-            $query = ArticleNewsletterLog::with(['article:id,title', 'sender:id,name,email'])
-                        ->orderBy('sent_at', 'desc');
+        $perPage = $request->get('per_page', 20);
+        $page = $request->get('page', 1);
 
-            $perPage = $request->get('per_page', 20);
-            $logs = $query->paginate($perPage);
+        // CHAVE DE CACHE ÚNICA POR PAGINAÇÃO
+        $cacheKey = "newsletter_logs_page_{$page}_perpage_{$perPage}";
+        $cacheDuration = now()->addMinutes(30); // Cache por 30 minutos
+
+        try {
+            // Usa Cache::remember para buscar os dados do cache ou do DB
+            $logs = Cache::remember($cacheKey, $cacheDuration, function () use ($perPage) {
+                return ArticleNewsletterLog::with(['article:id,title', 'sender:id,name,email'])
+                            ->orderBy('sent_at', 'desc')
+                            ->paginate($perPage);
+            });
+
+            // Segurança: Garante que o objeto retornado é um Paginator
+            if (!$logs instanceof LengthAwarePaginator) {
+                 // Se houver um problema com o objeto de cache, recarrega do banco de dados (sem cache)
+                 $logs = ArticleNewsletterLog::with(['article:id,title', 'sender:id,name,email'])
+                            ->orderBy('sent_at', 'desc')
+                            ->paginate($perPage);
+            }
 
             return response()->json([
                 'success' => true,

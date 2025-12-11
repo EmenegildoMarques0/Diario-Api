@@ -3384,6 +3384,411 @@
                 ]
             }
         },
+        "/api/v1/newsletter/subscribe": {
+            "post": {
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Inscrever-se na Newsletter",
+                "description": "Adiciona ou reativa um e-mail na lista de inscritos da Newsletter (Rota Pública).",
+                "operationId": "2889a847aaf5d124293de33ccf380289",
+                "requestBody": {
+                    "description": "Dados do inscrito",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "joao.silva@exemplo.com"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "João Silva",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Inscrito com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Inscrito com sucesso!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação"
+                    }
+                }
+            }
+        },
+        "/api/v1/newsletter/unsubscribe/{token}": {
+            "get": {
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Cancelar Inscrição na Newsletter",
+                "description": "Cancela a inscrição na Newsletter usando um token de segurança (Rota Pública).",
+                "operationId": "dbe00652d4cc488b988d644c8abb04c6",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "description": "Token criptografado do ID do inscrito.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cancelado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cancelado com sucesso."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Link inválido (Token Decryption Error)"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/newsletter/subscribers": {
+            "get": {
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Lista de Inscritos",
+                "description": "Retorna uma lista paginada de todos os inscritos (ativos e inativos). Requer autenticação (Admin).",
+                "operationId": "fc7fe0b44977baed1f57ad8aea2ddcf8",
+                "parameters": [
+                    {
+                        "name": "subscribed",
+                        "in": "query",
+                        "description": "Filtra por status de inscrição (true ou false)",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Busca por nome ou e-mail",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Inscritos retornados com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/newsletter/subscribers/stats": {
+            "get": {
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Estatísticas de Inscritos",
+                "description": "Retorna contagem total de inscritos, ativos, inativos e a taxa de ativos. Requer autenticação (Admin).",
+                "operationId": "05d07498fdd831e46db1c01957e4c08e",
+                "responses": {
+                    "200": {
+                        "description": "Estatísticas retornadas com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 1250
+                                                },
+                                                "active": {
+                                                    "type": "integer",
+                                                    "example": 1200
+                                                },
+                                                "inactive": {
+                                                    "type": "integer",
+                                                    "example": 50
+                                                },
+                                                "active_rate": {
+                                                    "description": "Taxa percentual de inscritos ativos.",
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 96
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/newsletter/send-article": {
+            "post": {
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Dispara o envio de um Artigo como Newsletter",
+                "description": "Dispara um evento na fila para enviar um artigo publicado a todos os inscritos. O ID do usuário logado é registrado. Requer autenticação (Admin).",
+                "operationId": "e6bbcd7eef72f1348597226f6a3f8d26",
+                "requestBody": {
+                    "description": "Dados do artigo a ser enviado",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "slug"
+                                ],
+                                "properties": {
+                                    "slug": {
+                                        "description": "O slug do artigo publicado para envio.",
+                                        "type": "string",
+                                        "example": "aplicacao-fullstack-em-minutos"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Evento de envio disparado e enfileirado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Evento de envio de Newsletter para o artigo 'Título do Artigo' disparado pelo User ID 1 com sucesso."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "404": {
+                        "description": "Artigo não encontrado"
+                    },
+                    "500": {
+                        "description": "Erro interno ao disparar evento"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/newsletter/sent-articles": {
+            "get": {
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Histórico de Artigos Enviados (Logs)",
+                "description": "Lista os artigos que já foram enviados como Newsletter (logs de disparo), incluindo detalhes de quem disparou o envio e quando. Requer autenticação (Admin).",
+                "operationId": "f43f39a44d264129bec9b5d79c94d945",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Itens por página (default: 20)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logs de envio retornados com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "article_id": {
+                                                        "type": "integer",
+                                                        "example": 42
+                                                    },
+                                                    "user_id": {
+                                                        "description": "ID do usuário que disparou o envio.",
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "sent_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-12-11T16:00:00Z"
+                                                    },
+                                                    "article": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 42
+                                                            },
+                                                            "title": {
+                                                                "type": "string",
+                                                                "example": "Aplicação Fullstack em MINUTOS"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "sender": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Admin Gildo"
+                                                            },
+                                                            "email": {
+                                                                "type": "string",
+                                                                "example": "admin@exemplo.com"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/auth/notifications": {
             "get": {
                 "tags": [
@@ -5083,6 +5488,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Newsletter",
+            "description": "Operações de Inscrição, Disparo de Envio e Rastreamento da Newsletter."
+        },
         {
             "name": "Dashboard",
             "description": "Endpoints para o painel administrativo"
