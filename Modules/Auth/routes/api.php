@@ -7,10 +7,15 @@ use Modules\Auth\app\Http\Controllers\{AuthController,ProfileController, UserMan
 
 Route::prefix('v1')->group(function () {
 
-    // Rotas públicas
+    // Rotas públicas (acessíveis sem autenticação)
     Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
         Route::post('login', [AuthController::class, 'login']);
+
+        // Rotas de Recuperação de Senha
+        Route::post('password/forgot', [AuthController::class, 'forgotPassword']);
+        Route::post('password/reset', [AuthController::class, 'resetPassword']);
+        //
     });
 
     // Rotas protegidas por autenticação

@@ -28,7 +28,6 @@ class ArticleController extends Controller
     public function index(): JsonResponse
     {
         $articles = Article::with(['author', 'publisher', 'coverImage', 'categories'])
-            ->withTrashed()
             ->latest('published_at')
             ->paginate(20);
 
@@ -68,7 +67,7 @@ class ArticleController extends Controller
                 }
 
                 Log::info('Artigo criado com sucesso', [
-                    'article_id' => $article->id,
+                    'article_i d' => $article->id,
                     'user_id' => auth()->id(),
                 ]);
 

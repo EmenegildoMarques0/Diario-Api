@@ -33,6 +33,7 @@ protected $policies = [
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'auth');
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
     }
 
