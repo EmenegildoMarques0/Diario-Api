@@ -84,6 +84,9 @@ class ArticleController extends Controller
                     }
                 }
 
+                $this->flushArticlesCache();
+
+
                 // Dispara evento se publicado
                 if ($article->published_at) {
                     event(new ArticlePublished($article));
@@ -231,6 +234,7 @@ class ArticleController extends Controller
             $article->restore();
 
             Log::info('Artigo restaurado com sucesso', ['article_id' => $id]);
+                $this->flushArticlesCache();
 
             return response()->json(['message' => 'Artigo restaurado com sucesso.']);
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
@@ -259,6 +263,9 @@ class ArticleController extends Controller
                 }
 
                 $article->categories()->attach($category->id);
+
+                $this->flushArticlesCache();
+
 
                 return response()->json([
                     'message' => 'Categoria associada com sucesso.',
@@ -291,6 +298,9 @@ class ArticleController extends Controller
                 }
 
                 $article->categories()->detach($category->id);
+
+                $this->flushArticlesCache();
+
 
                 return response()->json([
                     'message' => 'Categoria desassociada com sucesso.',
