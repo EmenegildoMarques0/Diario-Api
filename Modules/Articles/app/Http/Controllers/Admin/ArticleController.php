@@ -17,10 +17,11 @@ use Modules\Articles\app\Transformers\ArticleCollection;
 use Modules\Articles\app\Transformers\ArticleResource;
 use Modules\Articles\app\Events\ArticlePublished;
 use Modules\Articles\app\Notifications\ArticlePublishedByAdminNotification;
+use Modules\Articles\app\Traits\CacheManagementTrait;
 
 class ArticleController extends Controller
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, CacheManagementTrait;
 
     /**
      * Display a listing of the resource.
@@ -116,15 +117,17 @@ class ArticleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateArticleRequest $request, Article $article): JsonResponse
+    public function update(Request $request, Article $article): JsonResponse
     {
         try {
             $this->authorize('update', $article);
 
+            Log::debug('Dados recebidos no Update:', $request->all());
+
             return DB::transaction(function () use ($request, $article) {
                 // Obter todos os dados, exceto as imagens
                 $data = $request->except(['cover_image', 'gallery_images']);
-
+                Log::debug('Dados Validados (após validated()):', $data);
                 // CORREÇÃO ESSENCIAL: Garante que os booleanos sejam true/false de PHP
                 // Usamos $article->is_published como default caso o campo não seja enviado no update (PUT/PATCH)
                 $isPublished = $request->boolean('is_published', $article->is_published);
@@ -172,6 +175,8 @@ class ArticleController extends Controller
                     }
                 }
 
+                $this->flushArticlesCache();
+
                 return response()->json(new ArticleResource(
                     $article->load(['author', 'publisher', 'coverImage', 'images', 'categories'])
                 ));
@@ -202,6 +207,8 @@ class ArticleController extends Controller
                 'article_id' => $article->id,
                 'user_id' => auth()->id(),
             ]);
+
+            $this->flushArticlesCache();
 
             return response()->json(['message' => 'Artigo excluído com sucesso.'], 200);
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {

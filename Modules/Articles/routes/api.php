@@ -37,17 +37,47 @@ Route::prefix('v1')->group(function () {
         // Rotas administrativas (painel admin)
         Route::prefix('admin')->group(function () {
 
-            // Artigos
-            Route::apiResource('articles', AdminArticleController::class)
-                ->parameters(['articles' => 'article:slug'])
-                ->names('admin.articles');
+            // =============================================
+            // ARTIGOS (Implementação de rota individualizada)
+            // =============================================
+            Route::prefix('articles')->group(function () {
 
-            Route::post('articles/{article:slug}/restore', [AdminArticleController::class, 'restore'])
-                ->name('admin.articles.restore');
-            Route::post('articles/{article:slug}/categories', [AdminArticleController::class, 'attachCategory'])
-                ->name('admin.articles.attach-category');
-            Route::delete('articles/{article:slug}/categories', [AdminArticleController::class, 'detachCategory'])
-                ->name('admin.articles.detach-category');
+                // Index (GET /v1/admin/articles)
+                Route::get('/', [AdminArticleController::class, 'index'])
+                    ->name('admin.articles.index');
+
+                // Store (POST /v1/admin/articles)
+                Route::post('/', [AdminArticleController::class, 'store'])
+                    ->name('admin.articles.store');
+
+                // Show (GET /v1/admin/articles/{article:slug})
+                Route::get('{article:slug}', [AdminArticleController::class, 'show'])
+                    ->name('admin.articles.show');
+
+                // Update (PUT/PATCH /v1/admin/articles/{article:slug})
+                Route::match(['put', 'patch', 'post'], '{article:slug}', [AdminArticleController::class, 'update'])
+                    ->name('admin.articles.update');
+
+                // Destroy (DELETE /v1/admin/articles/{article:slug})
+                Route::delete('{article:slug}', [AdminArticleController::class, 'destroy'])
+                    ->name('admin.articles.destroy');
+
+                // Restore (POST /v1/admin/articles/{article:slug}/restore)
+                // Mantém o binding por slug para consistência com o restante
+                Route::post('{article:slug}/restore', [AdminArticleController::class, 'restore'])
+                    ->name('admin.articles.restore');
+
+                // Attach Category (POST /v1/admin/articles/{article:slug}/categories)
+                Route::post('{article:slug}/categories', [AdminArticleController::class, 'attachCategory'])
+                    ->name('admin.articles.attach-category');
+
+                // Detach Category (DELETE /v1/admin/articles/{article:slug}/categories)
+                // Nota: Usar o método HTTP DELETE para desanexar é semanticamente correto.
+                Route::delete('{article:slug}/categories', [AdminArticleController::class, 'detachCategory'])
+                    ->name('admin.articles.detach-category');
+
+            });
+            // FIM: Artigos
 
             // Categorias
             Route::apiResource('categories', CategoryController::class)
