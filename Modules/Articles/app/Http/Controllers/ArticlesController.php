@@ -35,9 +35,9 @@ class ArticlesController extends Controller
             }
 
             $page = $request->get('page', 1);
-            $cacheKey = "articles_index_cat_{$categoryIds}_page_{$page}";
+            $cacheKey = 'articles_index_cat_{$categoryIds}_page_{$page}';
 
-            $articles = Cache::remember($cacheKey, now()->addMinutes(6), function () use ($request) {
+            $articles = Cache::remember($cacheKey, 300, function () use ($request) {
                 $query = Article::published()
                     ->with(['author', 'coverImage', 'images', 'categories'])
                     ->latest('published_at');

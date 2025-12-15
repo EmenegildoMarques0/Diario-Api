@@ -35,6 +35,8 @@ trait CacheManagementTrait
         // Limpa chaves de Artigos em Destaque
         Cache::forget('featured_articles_limit_6');
         Cache::forget('featured_articles_limit_10');
+        Cache::forget('articles_index_cat_{$categoryIds}_page_{$page}');
+
 
         // --- INÍCIO DA LIMPEZA EXPANDIDA (510 operações) ---
 
