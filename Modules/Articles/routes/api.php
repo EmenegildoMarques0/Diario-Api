@@ -16,6 +16,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [ArticlesController::class, 'index'])->name('articles.index');
         Route::get('/featured', [ArticlesController::class, 'featured'])->name('articles.featured');
         Route::get('/{article:slug}', [ArticlesController::class, 'show'])->name('articles.show');
+        Route::get('/{article:slug}/recommendations', [ArticlesController::class, 'getRecommendations']);
     });
 
     // =============================================
