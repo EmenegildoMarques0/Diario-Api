@@ -16,7 +16,7 @@ use Modules\Articles\app\Models\{Article, ArticleImage, Category};
 use Modules\Articles\app\Transformers\ArticleCollection;
 use Modules\Articles\app\Transformers\ArticleResource;
 use Modules\Articles\app\Events\ArticlePublished;
-use Modules\Articles\app\Notifications\ArticlePublishedByAdminNotification;
+use Modules\Articles\app\Http\Controllers\Notifications\ArticlePublishedByAdminNotification;
 use Modules\Articles\app\Traits\CacheManagementTrait;
 
 class ArticleController extends Controller

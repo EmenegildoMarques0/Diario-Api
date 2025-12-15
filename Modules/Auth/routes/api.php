@@ -25,6 +25,8 @@ Route::prefix('v1')->group(function () {
         Route::put('profile', [ProfileController::class, 'update']);
         Route::post('users/{userId}/role', [UserPromotionController::class, 'updateRole']);
         Route::get('/users', [UserManagementController::class, 'index']);
+        Route::post('/users', [UserManagementController::class, 'store']);
+        Route::put('/users/{userId}', [UserManagementController::class, 'update']);
         Route::get('/users/{userId}', [UserManagementController::class, 'show']);
         Route::delete('/users/{userId}', [UserManagementController::class, 'destroy']);
         Route::post('/users/{userId}/restore', [UserManagementController::class, 'restore']);
