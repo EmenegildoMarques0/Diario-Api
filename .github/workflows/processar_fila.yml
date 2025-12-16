@@ -12,4 +12,4 @@ jobs:
     steps:
       - name: Hit Queue Script
         run: |
-          curl -s -L "https://api.diariodoestilo.site/queue_worker.php"
+          curl -s -L "https://apii.diariodoestilo.site/queue_worker.php"
