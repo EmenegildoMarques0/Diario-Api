@@ -1,0 +1,15 @@
+name: Processar Fila Laravel
+
+on:
+  schedule:
+    # Executa a cada 10 minutos
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Permite rodar manualmente para teste
+
+jobs:
+  ping_queue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit Queue Script
+        run: |
+          curl -s -L "https://api.diariodoestilo.site/queue_worker.php"
