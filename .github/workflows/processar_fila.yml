@@ -1,8 +1,10 @@
-name: Processar Fila Laravel
+name: Processar Fila Laravel (Angola Time)
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    # 07:00 UTC = 08:00 Luanda
+    # 19:00 UTC = 20:00 Luanda
+    - cron: '0 7,19 * * *'
   workflow_dispatch: 
 
 jobs:
@@ -11,9 +13,6 @@ jobs:
     steps:
       - name: Executar e Ver Logs da Fila
         run: |
-          # Realiza a chamada e imprime diretamente no console do GitHub
-          echo "Iniciando processamento às $(date)"
+          echo "Disparando processamento (Horário de Luanda: $(date))"
           
-          # -i faz o curl mostrar os headers (ajuda a ver o status HTTP)
-          # A resposta do seu Controller aparecerá logo abaixo
           curl -L "https://api.diariodoestilo.site/api/processar-fila?token=f47ac10b-58cc-4372-a567-0e02b2c3d479"
