@@ -2,14 +2,18 @@ name: Processar Fila Laravel
 
 on:
   schedule:
-    # Executa a cada 10 minutos
     - cron: '*/10 * * * *'
-  workflow_dispatch: # Permite rodar manualmente para teste
+  workflow_dispatch: 
 
 jobs:
   ping_queue:
     runs-on: ubuntu-latest
     steps:
-      - name: Hit Queue Script
+      - name: Executar e Ver Logs da Fila
         run: |
-          curl -s -L "https://apii.diariodoestilo.site/queue_worker.php"
+          # Realiza a chamada e imprime diretamente no console do GitHub
+          echo "Iniciando processamento às $(date)"
+          
+          # -i faz o curl mostrar os headers (ajuda a ver o status HTTP)
+          # A resposta do seu Controller aparecerá logo abaixo
+          curl -L "https://api.diariodoestilo.site/api/processar-fila?token=f47ac10b-58cc-4372-a567-0e02b2c3d479"
