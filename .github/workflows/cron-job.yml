@@ -1,0 +1,27 @@
+name: Cron Job API
+
+on:
+  schedule:
+    - cron: "0 */3 * * *"  # a cada 3 horas
+  workflow_dispatch:       # permite rodar manualmente na hora
+
+jobs:
+  run-cron:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Executar requisição
+        run: |
+          echo "Executando cron manual/automático..."
+
+          http_code=$(curl -s -o response.txt -w "%{http_code}" https://api.diariodoestilo.site/cron.php)
+
+          echo "Status HTTP: $http_code"
+          echo "Resposta da API:"
+          cat response.txt
+
+          # opcional: falhar se não for 200
+          if [ "$http_code" -ne 200 ]; then
+            echo "Erro na requisição!"
+            exit 1
+          fi
