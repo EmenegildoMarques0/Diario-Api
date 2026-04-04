@@ -2,7 +2,7 @@ name: Cron Job API
 
 on:
   schedule:
-    - cron: "0 */3 * * *"  # a cada 3 horas
+    - cron: "0 * * * *"  # a cada 3 horas
   workflow_dispatch:       # permite rodar manualmente na hora
 
 jobs:
